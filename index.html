@@ -184,6 +184,11 @@ body.opened #listen{opacity:1;transform:translateY(0);pointer-events:auto}
 .unlock-button:hover{border-color:rgba(221,142,92,.6);color:var(--accent)}
 
 
+
+#voiceAudio{
+  display:none;
+}
+
 /* liner notes / analog insert */
 #tracks{
   width:min(780px,calc(100% - 32px));margin:0 auto;
@@ -556,6 +561,10 @@ footer{
     </div>
 
     <div class="voice-progress"><span id="voiceProgress"></span></div>
+
+    <audio id="voiceAudio" preload="metadata">
+      <source src="./assets/prueba.mp3" type="audio/mpeg">
+    </audio>
   </div>
 
   <div class="listen-reassurance">
@@ -862,7 +871,7 @@ startButton.addEventListener('click',()=>{
 });
 
 /* =========================
-   VOICE DEMO
+   VOICE DEMO — REAL AUDIO
    ========================= */
 
 const voicePlay=document.getElementById('voicePlay');
@@ -872,6 +881,7 @@ const voiceState=document.getElementById('voiceState');
 const voiceSub=document.getElementById('voiceSub');
 const unlock=document.getElementById('unlock');
 const voiceWave=document.getElementById('voiceWave');
+const voiceAudio=document.getElementById('voiceAudio');
 
 const barPattern=[
   .25,.39,.62,.41,.77,.33,.53,.82,.45,.67,.38,.58,.74,.31,.61,.44,
@@ -886,75 +896,102 @@ barPattern.forEach(v=>{
   voiceWave.appendChild(bar);
 });
 
-let voicePlaying=false;
-let voiceTimer=null;
-let voiceStartedAt=0;
-const VOICE_DURATION=15;
-
-function resetVoice(){
-  clearInterval(voiceTimer);
-  voicePlaying=false;
-  voiceProgress.style.width='0%';
-  voiceTime.textContent='00:15';
-  voiceState.textContent='Tu voz viene antes de la música.';
-  voiceSub.textContent='15 segundos · demo de la experiencia';
-  voicePlay.innerHTML='<span class="play-icon"></span>';
-  document.querySelectorAll('.voice-bar').forEach(b=>b.classList.remove('active'));
+function formatTime(seconds){
+  if(!Number.isFinite(seconds) || seconds < 0) return '00:00';
+  const total=Math.floor(seconds);
+  const m=Math.floor(total/60);
+  const s=total%60;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
 
-function finishVoice(){
-  clearInterval(voiceTimer);
-  voicePlaying=false;
+function setVoiceBars(progress){
+  const bars=document.querySelectorAll('.voice-bar');
+  const active=Math.floor(Math.max(0,Math.min(1,progress))*bars.length);
+  bars.forEach((b,i)=>b.classList.toggle('active',i<active));
+}
+
+function resetVoiceUI(){
+  voiceProgress.style.width='0%';
+  voiceTime.textContent=Number.isFinite(voiceAudio.duration)
+    ? formatTime(voiceAudio.duration)
+    : '00:00';
+  voiceState.textContent='Tu voz viene antes de la música.';
+  voiceSub.textContent='Audio de ejemplo · assets/prueba.mp3';
+  voicePlay.innerHTML='<span class="play-icon"></span>';
+  setVoiceBars(0);
+  unlock.classList.remove('show');
+}
+
+function updateVoiceUI(){
+  const duration=voiceAudio.duration||0;
+  const current=voiceAudio.currentTime||0;
+  const progress=duration ? current/duration : 0;
+
+  voiceProgress.style.width=`${progress*100}%`;
+  voiceTime.textContent=duration ? formatTime(Math.max(0,duration-current)) : '00:00';
+  setVoiceBars(progress);
+
+  if(!voiceAudio.paused){
+    voiceState.textContent='Reproduciendo la nota de voz…';
+    voiceSub.textContent='Audio real · prueba.mp3';
+    voicePlay.innerHTML='<span style="font:400 11px DM Mono,monospace">Ⅱ</span>';
+  }
+}
+
+voiceAudio.addEventListener('loadedmetadata',()=>{
+  voiceTime.textContent=formatTime(voiceAudio.duration);
+  voiceSub.textContent='Audio de ejemplo · prueba.mp3';
+});
+
+voiceAudio.addEventListener('timeupdate',updateVoiceUI);
+
+voiceAudio.addEventListener('play',()=>{
+  clickSound(.7);
+  voiceState.textContent='Reproduciendo la nota de voz…';
+  voiceSub.textContent='Audio real · prueba.mp3';
+  voicePlay.innerHTML='<span style="font:400 11px DM Mono,monospace">Ⅱ</span>';
+});
+
+voiceAudio.addEventListener('pause',()=>{
+  if(voiceAudio.currentTime < voiceAudio.duration){
+    voiceState.textContent='Nota pausada.';
+    voiceSub.textContent='Presiona para continuar';
+    voicePlay.innerHTML='<span class="play-icon"></span>';
+  }
+});
+
+voiceAudio.addEventListener('ended',()=>{
   voiceProgress.style.width='100%';
   voiceTime.textContent='00:00';
   voiceState.textContent='La nota terminó.';
   voiceSub.textContent='La cinta está lista para Side A.';
   voicePlay.innerHTML='<span style="font:400 12px DM Mono,monospace">↺</span>';
-  document.querySelectorAll('.voice-bar').forEach(b=>b.classList.add('active'));
+  setVoiceBars(1);
   unlock.classList.add('show');
   clickSound(.55);
-}
+});
 
-function startVoice(){
-  clickSound(.7);
-  voicePlaying=true;
-  voiceStartedAt=performance.now();
-  voiceState.textContent='Reproduciendo la nota de voz…';
-  voiceSub.textContent='Demo visual · el audio real se conectará después';
-  voicePlay.innerHTML='<span style="font:400 11px DM Mono,monospace">Ⅱ</span>';
-  clearInterval(voiceTimer);
+voiceAudio.addEventListener('error',()=>{
+  voiceState.textContent='No se encontró el audio de ejemplo.';
+  voiceSub.textContent='Sube assets/prueba.mp3 al repositorio.';
+  voicePlay.innerHTML='<span class="play-icon"></span>';
+});
 
-  voiceTimer=setInterval(()=>{
-    const elapsed=(performance.now()-voiceStartedAt)/1000;
-    const progress=Math.min(1,elapsed/VOICE_DURATION);
-    const left=Math.max(0,Math.ceil(VOICE_DURATION-elapsed));
-
-    voiceProgress.style.width=`${progress*100}%`;
-    voiceTime.textContent=`00:${String(left).padStart(2,'0')}`;
-
-    const bars=document.querySelectorAll('.voice-bar');
-    const activeCount=Math.floor(progress*bars.length);
-    bars.forEach((b,i)=>b.classList.toggle('active',i<activeCount));
-
-    if(progress>=1)finishVoice();
-  },60);
-}
-
-voicePlay.addEventListener('click',()=>{
-  if(!voicePlaying && unlock.classList.contains('show')){
-    resetVoice();
-    startVoice();
-    return;
+voicePlay.addEventListener('click',async()=>{
+  if(voiceAudio.ended){
+    voiceAudio.currentTime=0;
   }
-  if(voicePlaying){
-    clearInterval(voiceTimer);
-    voicePlaying=false;
-    voiceState.textContent='Nota pausada.';
-    voiceSub.textContent='Presiona para continuar';
-    voicePlay.innerHTML='<span class="play-icon"></span>';
-    return;
+
+  if(voiceAudio.paused){
+    try{
+      await voiceAudio.play();
+    }catch(err){
+      voiceState.textContent='No se pudo reproducir el audio.';
+      voiceSub.textContent='Comprueba que exista assets/prueba.mp3';
+    }
+  }else{
+    voiceAudio.pause();
   }
-  startVoice();
 });
 
 document.getElementById('openSideA').addEventListener('click',()=>{
