@@ -130,7 +130,7 @@ main{position:relative;min-height:100vh}
 .ritual-item{padding:18px 12px;text-align:center;border-right:1px solid rgba(237,230,214,.06)}
 .ritual-item:last-child{border-right:0}
 .ritual-no{display:block;color:var(--accent);font:400 7px 'DM Mono',monospace;letter-spacing:.16em}
-.ritual-word{display:block;margin-top:7px;font:400 12px 'Playfair Display',serif;color:var(--text)}
+.ritual-word{display:block;margin-top:7px;font:400 12px 'Playfair Display',serif;color:var(--text);letter-spacing:.01em}
 .ritual-desc{display:block;margin-top:4px;color:var(--dim);font:400 8px 'DM Mono',monospace;letter-spacing:.03em}
 
 /* voice */
@@ -183,44 +183,207 @@ body.opened #listen{opacity:1;transform:translateY(0);pointer-events:auto}
 }
 .unlock-button:hover{border-color:rgba(221,142,92,.6);color:var(--accent)}
 
-/* tracks */
+
+/* human selection statement */
+.human-note{
+  width:min(760px,calc(100% - 32px));
+  margin:0 auto 74px;
+  padding:34px 0 0;
+  text-align:center;
+  border-top:1px solid rgba(237,230,214,.07);
+}
+.human-note h2{
+  margin:13px 0 0;
+  font:400 clamp(31px,5vw,44px)/1.05 'Playfair Display',serif;
+  letter-spacing:-.03em;
+}
+.human-note h2 em{color:var(--accent)}
+.human-note p{
+  max-width:520px;
+  margin:16px auto 0;
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.72;
+}
+
+/* liner notes / analog insert */
 #tracks{
-  width:min(760px,calc(100% - 32px));margin:0 auto;
-  padding:18px 0 125px;opacity:0;transform:translateY(34px);pointer-events:none;
+  width:min(780px,calc(100% - 32px));margin:0 auto;
+  padding:30px 0 120px;
+  opacity:0;transform:translateY(34px);pointer-events:none;
   transition:.75s ease;
 }
 body.music-open #tracks{opacity:1;transform:translateY(0);pointer-events:auto}
-.track-intro{max-width:540px;margin-bottom:30px}
-.track-intro .kicker{text-align:left}
+
+.insert-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:end;
+  gap:24px;
+  margin-bottom:28px;
+}
 .track-title{
-  margin:12px 0 0;font:400 clamp(38px,6vw,52px)/1 'Playfair Display',serif;letter-spacing:-.03em;
+  margin:12px 0 0;
+  font:400 clamp(40px,6vw,54px)/1 'Playfair Display',serif;
+  letter-spacing:-.035em;
 }
-.track-subcopy{margin:11px 0 0;color:var(--muted);font-size:11px;line-height:1.65;max-width:520px}
-.side-controls{display:flex;gap:6px;margin-top:23px}
+.track-subcopy{
+  margin:11px 0 0;color:var(--muted);
+  font-size:11px;line-height:1.7;max-width:520px;
+}
+.side-controls{
+  display:flex;gap:5px;flex:0 0 auto;
+}
 .side-controls button{
-  padding:10px 13px;border:1px solid var(--line);color:var(--muted);cursor:pointer;
-  font:400 8px 'DM Mono',monospace;letter-spacing:.11em;text-transform:uppercase;
+  width:38px;height:38px;
+  border:1px solid var(--line);
+  color:var(--muted);cursor:pointer;
+  font:500 9px 'DM Mono',monospace;
+  letter-spacing:.12em;
+  transition:.2s;
 }
-.side-controls button.active{border-color:rgba(221,142,92,.58);color:var(--accent);background:rgba(221,142,92,.06)}
-.side-controls button:hover{border-color:rgba(237,230,214,.25);color:var(--text)}
-.track-list{border-top:1px solid var(--line);margin-top:30px}
+.side-controls button.active{
+  border-color:rgba(221,142,92,.62);
+  color:var(--accent);
+  background:rgba(221,142,92,.07);
+}
+.side-controls button:hover{
+  border-color:rgba(237,230,214,.26);
+  color:var(--text);
+}
+
+.liner-sheet{
+  position:relative;
+  padding:24px 22px 18px;
+  border:1px solid rgba(237,230,214,.13);
+  background:
+    linear-gradient(180deg,rgba(238,230,215,.028),rgba(238,230,215,.006)),
+    rgba(12,11,15,.84);
+  box-shadow:0 28px 70px rgba(0,0,0,.25);
+}
+.liner-sheet:before{
+  content:"";
+  position:absolute;inset:0;pointer-events:none;
+  opacity:.055;
+  background:
+    repeating-linear-gradient(0deg,transparent 0 18px,rgba(237,230,214,.22) 18px 19px);
+}
+.liner-topline{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  position:relative;z-index:1;
+  color:rgba(237,230,214,.55);
+  font:400 7px 'DM Mono',monospace;
+  letter-spacing:.17em;
+  text-transform:uppercase;
+}
+.liner-rule{
+  height:1px;background:rgba(237,230,214,.12);
+  margin:16px 0 18px;position:relative;z-index:1;
+}
+.liner-letter{
+  display:flex;align-items:end;justify-content:space-between;
+  position:relative;z-index:1;margin-bottom:14px;
+}
+.liner-letter-main{
+  font:400 clamp(72px,12vw,108px)/.8 'DM Mono',monospace;
+  letter-spacing:-.08em;color:rgba(237,230,214,.10);
+}
+.liner-letter-caption{
+  color:var(--accent);
+  font:400 8px 'DM Mono',monospace;
+  letter-spacing:.22em;text-transform:uppercase;
+  padding-bottom:3px;
+}
+
+.tape-progress{
+  position:relative;z-index:1;margin:12px 0 16px;
+}
+.tape-progress-track{
+  height:1px;background:rgba(237,230,214,.13);position:relative;
+}
+.tape-progress-fill{
+  position:absolute;left:0;top:0;height:100%;width:32%;
+  background:linear-gradient(90deg,var(--accent),rgba(221,142,92,.15));
+}
+.tape-progress-marker{
+  position:absolute;left:32%;top:50%;
+  width:6px;height:6px;border-radius:50%;
+  transform:translate(-50%,-50%);
+  background:var(--accent);
+  box-shadow:0 0 0 4px rgba(221,142,92,.08);
+}
+.tape-progress-meta{
+  display:flex;justify-content:space-between;gap:12px;
+  margin-top:8px;color:var(--dim);
+  font:400 7px 'DM Mono',monospace;
+  letter-spacing:.09em;text-transform:uppercase;
+}
+
+.track-list{
+  position:relative;z-index:1;
+  margin-top:20px;
+  border-top:1px solid rgba(237,230,214,.11);
+}
 .track-row{
-  display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:14px;
-  padding:19px 0;border-bottom:1px solid var(--line);align-items:start;
+  display:grid;
+  grid-template-columns:38px minmax(0,1fr) auto;
+  gap:14px;
+  padding:20px 0;
+  border-bottom:1px solid rgba(237,230,214,.10);
+  align-items:start;
+  cursor:pointer;
+  transition:.2s;
 }
-.track-number{color:var(--dim);font:400 9px 'DM Mono',monospace}
-.track-name{font-size:14px;color:var(--text)}
-.track-artist{margin-top:4px;color:var(--muted);font:400 8px 'DM Mono',monospace}
-.track-note{margin-top:8px;color:var(--accent);font:italic 12px 'Playfair Display',serif}
-.track-open{
-  color:var(--muted);padding-top:2px;cursor:pointer;font:400 7px 'DM Mono',monospace;
-  letter-spacing:.1em;text-transform:uppercase;transition:.2s;
+.track-row:hover{
+  padding-left:5px;padding-right:5px;
+  background:rgba(221,142,92,.022);
 }
-.track-row:hover .track-open{color:var(--accent)}
-.track-footnote{
-  margin-top:18px;color:var(--dim);font:400 7px/1.7 'DM Mono',monospace;
+.track-number{
+  color:var(--dim);
+  font:400 9px 'DM Mono',monospace;
+  padding-top:2px;
+}
+.track-name{
+  font:400 17px/1.18 'Playfair Display',serif;
+  color:var(--text);
+}
+.track-artist{
+  margin-top:5px;color:var(--muted);
+  font:400 8px 'DM Mono',monospace;
   letter-spacing:.05em;text-transform:uppercase;
 }
+.track-note{
+  margin-top:9px;
+  color:var(--accent);
+  font:italic 12px/1.55 'Playfair Display',serif;
+  max-width:460px;
+}
+.track-open{
+  color:var(--muted);padding-top:3px;
+  font:400 7px 'DM Mono',monospace;
+  letter-spacing:.1em;text-transform:uppercase;
+  transition:.2s;
+}
+.track-row:hover .track-open{color:var(--accent)}
+
+.liner-footer{
+  position:relative;z-index:1;
+  display:flex;justify-content:space-between;gap:12px;
+  padding-top:14px;
+  color:rgba(155,148,136,.42);
+  font:400 7px 'DM Mono',monospace;
+  letter-spacing:.12em;text-transform:uppercase;
+}
+
+.track-footnote{
+  margin-top:14px;
+  color:var(--dim);
+  font:400 7px/1.7 'DM Mono',monospace;
+  letter-spacing:.06em;text-transform:uppercase;
+}
+.track-footnote-accent{color:rgba(221,142,92,.62)}
 
 /* flip section */
 #flip{
@@ -292,6 +455,14 @@ footer{
   .ritual-item:nth-child(2){border-right:0}
   .ritual-item:nth-child(-n+2){border-bottom:1px solid rgba(237,230,214,.06)}
   #listen,#tracks,#flip,#product{width:calc(100% - 28px)}
+  .insert-head{align-items:flex-start;flex-direction:column;gap:18px}
+  .side-controls{align-self:flex-start}
+  .liner-sheet{padding:20px 16px 16px}
+  .liner-topline{font-size:6.5px}
+  .liner-letter-main{font-size:74px}
+  .track-row{grid-template-columns:28px minmax(0,1fr);gap:10px}
+  .track-open{grid-column:2}
+  .liner-footer{font-size:6.5px}
   .flip-card{align-items:flex-start;flex-direction:column}
   .flip-button{width:100%}
 }
@@ -333,7 +504,7 @@ footer{
       </p>
 
       <div class="hero-facts">
-        <span>6 canciones</span><i></i><span>1 nota de voz</span><i></i><span>NFC + QR</span><i></i><span>1 pieza física</span>
+        <span>6 canciones</span><i></i><span>1 nota de voz</span><i></i><span>NFC</span><i></i><span>1 pieza física</span>
       </div>
 
       <div class="edition-mark">HECHA PARA ESCUCHARSE CON CALMA</div>
@@ -342,7 +513,7 @@ footer{
     <div class="stage">
       <div id="scene"></div>
       <div class="stage-frame"></div>
-      <div class="hint">Arrastra para girar · rueda para acercar</div>
+      <div class="hint">Tócala · gírala si quieres verla de cerca</div>
     </div>
 
     <div class="start-wrap">
@@ -351,6 +522,15 @@ footer{
     </div>
 
   </div>
+</section>
+
+<section class="human-note">
+  <div class="eyebrow">LA IDEA</div>
+  <h2>Elegidas por alguien.<br><em>No por un algoritmo.</em></h2>
+  <p>
+    La gracia de una Mixtape está en pensar en una persona y escoger,
+    una por una, las canciones que quieres que escuche.
+  </p>
 </section>
 
 <section class="ritual">
@@ -420,44 +600,83 @@ footer{
 </section>
 
 <section id="tracks">
-  <div class="track-intro">
-    <div class="eyebrow kicker">LA SELECCIÓN</div>
-    <h2 class="track-title" id="sideTitle">Side A</h2>
-    <div class="track-subcopy">
-      Tres canciones para empezar. Cada una puede llevar su propia pequeña historia.
+
+  <div class="insert-head">
+    <div>
+      <div class="eyebrow kicker">INSERT · TRACK LIST</div>
+      <h2 class="track-title" id="sideTitle">Side A</h2>
+      <p class="track-subcopy">
+        Como la hoja que iba dentro de una cinta. Una selección hecha a mano,
+        una canción a la vez.
+      </p>
     </div>
 
-    <div class="side-controls">
-      <button id="sideToggleA" class="active">SIDE A</button>
-      <button id="sideToggleB">SIDE B</button>
+    <div class="side-controls" aria-label="Cambiar lado de la cinta">
+      <button id="sideToggleA" class="active">A</button>
+      <button id="sideToggleB">B</button>
     </div>
   </div>
 
-  <div class="track-list" id="trackList"></div>
+  <div class="liner-sheet">
+
+    <div class="liner-topline">
+      <span>ETÉREO · MIXTAPE 00127</span>
+      <span id="linerSideLabel">SIDE A</span>
+    </div>
+
+    <div class="liner-rule"></div>
+
+    <div class="liner-letter">
+      <span class="liner-letter-main" id="linerLetter">A</span>
+      <span class="liner-letter-caption">SIDE</span>
+    </div>
+
+    <div class="tape-progress">
+      <div class="tape-progress-track">
+        <span class="tape-progress-fill" id="tapeProgressFill"></span>
+        <span class="tape-progress-marker" id="tapeProgressMarker"></span>
+      </div>
+      <div class="tape-progress-meta">
+        <span id="tapeProgressText">03 CANCIONES</span>
+        <span>PRESS PLAY / THEN TURN THE TAPE</span>
+      </div>
+    </div>
+
+    <div class="track-list" id="trackList"></div>
+
+    <div class="liner-footer">
+      <span>MADE TO BE LISTENED TO SLOWLY</span>
+      <span id="linerEdition">ET—MX—00127</span>
+    </div>
+  </div>
 
   <div class="track-footnote">
-    Cada canción se abre en la plataforma elegida por quien escucha.
+    Selecciona una canción para escucharla en tu plataforma favorita.
+    <span class="track-footnote-accent">No hay música alojada por ETÉREO.</span>
   </div>
 </section>
 
 <section id="flip">
   <div class="flip-card">
     <div class="flip-copy">
-      <div class="eyebrow">EL RITUAL CONTINÚA</div>
+      <div class="eyebrow">LA OTRA CARA</div>
       <h3>Voltea la cinta.</h3>
-      <p>Como antes. Solo que ahora la otra cara también vive aquí.</p>
+      <p>
+        Igual que antes: termina un lado, dale la vuelta y continúa.
+      </p>
     </div>
-    <button class="flip-button" id="flipButton">Voltear cassette →</button>
+
+    <button class="flip-button" id="flipButton">
+      Voltear cassette →
+    </button>
   </div>
 </section>
 
 <section id="product">
   <div class="eyebrow product-kicker">LA PIEZA FÍSICA</div>
-  <h3>Lo que escuchas aquí también existe.</h3>
+  <h3>La cinta se queda contigo.</h3>
   <p>
-    El cassette es el objeto que permanece. NFC y QR lo conectan con esta experiencia
-    para volver a escucharla cuando quieras.
-  </p>
+    El cassette es el recuerdo que puedes tocar. El NFC es el puente para volver a escuchar esta Mixtape cuando quieras.</p>
 </section>
 
 <footer>ETÉREO LAB STUDIO · UNA CÁPSULA DEL TIEMPO</footer>
@@ -589,6 +808,10 @@ function frameModel(obj){
   obj.scale.setScalar(92/maxDim);
 
   obj.rotation.set(0,0,0);
+
+  // Optical centering: the physical cassette's visual mass sits slightly
+  // differently from its mathematical bounding-box center.
+  root.position.set(-3.2, 1.2, 0);
 
   camera.position.set(0,0,150);
   camera.lookAt(0,0,0);
@@ -768,21 +991,21 @@ document.getElementById('openSideA').addEventListener('click',()=>{
 const mixtapeData={
   A:[
     {
-      n:'01',title:'Mystery of Love',artist:'Sufjan Stevens',
+      n:'01',title:'Mystery of Love',artist:'Sufjan Stevens',duration:'04:08',
       note:'La primera que pensé para esta cinta.',
       spotify:'https://open.spotify.com/search/Mystery%20of%20Love%20Sufjan%20Stevens',
       apple:'https://music.apple.com/us/search?term=Mystery%20of%20Love%20Sufjan%20Stevens',
       youtube:'https://www.youtube.com/results?search_query=Mystery+of+Love+Sufjan+Stevens'
     },
     {
-      n:'02',title:'Sweet Disposition',artist:'The Temper Trap',
+      n:'02',title:'Sweet Disposition',artist:'The Temper Trap',duration:'03:54',
       note:'Para los días que quiero guardar.',
       spotify:'https://open.spotify.com/search/Sweet%20Disposition%20The%20Temper%20Trap',
       apple:'https://music.apple.com/us/search?term=Sweet%20Disposition%20The%20Temper%20Trap',
       youtube:'https://www.youtube.com/results?search_query=Sweet+Disposition+The+Temper+Trap'
     },
     {
-      n:'03',title:'Apocalypse',artist:'Cigarettes After Sex',
+      n:'03',title:'Apocalypse',artist:'Cigarettes After Sex',duration:'04:50',
       note:'',
       spotify:'https://open.spotify.com/search/Apocalypse%20Cigarettes%20After%20Sex',
       apple:'https://music.apple.com/us/search?term=Apocalypse%20Cigarettes%20After%20Sex',
@@ -791,21 +1014,21 @@ const mixtapeData={
   ],
   B:[
     {
-      n:'01',title:"Nothing's Gonna Hurt You Baby",artist:'Cigarettes After Sex',
+      n:'01',title:"Nothing's Gonna Hurt You Baby",artist:'Cigarettes After Sex',duration:'04:46',
       note:'Para escuchar despacio.',
       spotify:'https://open.spotify.com/search/Nothing%27s%20Gonna%20Hurt%20You%20Baby%20Cigarettes%20After%20Sex',
       apple:'https://music.apple.com/us/search?term=Nothing%27s%20Gonna%20Hurt%20You%20Baby%20Cigarettes%20After%20Sex',
       youtube:'https://www.youtube.com/results?search_query=Nothing%27s+Gonna+Hurt+You+Baby+Cigarettes+After+Sex'
     },
     {
-      n:'02',title:'Space Song',artist:'Beach House',
+      n:'02',title:'Space Song',artist:'Beach House',duration:'05:20',
       note:'',
       spotify:'https://open.spotify.com/search/Space%20Song%20Beach%20House',
       apple:'https://music.apple.com/us/search?term=Space%20Song%20Beach%20House',
       youtube:'https://www.youtube.com/results?search_query=Space+Song+Beach+House'
     },
     {
-      n:'03',title:'Young',artist:'Vacations',
+      n:'03',title:'Young',artist:'Vacations',duration:'03:25',
       note:'Para cerrar la cinta.',
       spotify:'https://open.spotify.com/search/Young%20Vacations',
       apple:'https://music.apple.com/us/search?term=Young%20Vacations',
@@ -820,12 +1043,22 @@ const trackList=document.getElementById('trackList');
 const sideTitle=document.getElementById('sideTitle');
 const sideToggleA=document.getElementById('sideToggleA');
 const sideToggleB=document.getElementById('sideToggleB');
+const linerSideLabel=document.getElementById('linerSideLabel');
+const linerLetter=document.getElementById('linerLetter');
+const tapeProgressFill=document.getElementById('tapeProgressFill');
+const tapeProgressMarker=document.getElementById('tapeProgressMarker');
+const tapeProgressText=document.getElementById('tapeProgressText');
 
 function renderSide(side){
   currentSide=side;
   sideTitle.textContent=`Side ${side}`;
   sideToggleA.classList.toggle('active',side==='A');
   sideToggleB.classList.toggle('active',side==='B');
+  linerSideLabel.textContent=`SIDE ${side}`;
+  linerLetter.textContent=side;
+  tapeProgressFill.style.width=side==='A' ? '34%' : '72%';
+  tapeProgressMarker.style.left=side==='A' ? '34%' : '72%';
+  tapeProgressText.textContent=`${mixtapeData[side].length.toString().padStart(2,'0')} CANCIONES`;
   trackList.innerHTML='';
 
   mixtapeData[side].forEach(track=>{
@@ -838,7 +1071,10 @@ function renderSide(side){
         <div class="track-artist">${track.artist}</div>
         ${track.note?`<div class="track-note">${track.note}</div>`:''}
       </div>
-      <div class="track-open">ESCUCHAR ↗</div>
+      <div class="track-open">
+        <span>${track.duration || ''}</span><br>
+        ESCUCHAR ↗
+      </div>
     `;
     row.addEventListener('click',()=>openListenPanel(track));
     trackList.appendChild(row);
