@@ -556,11 +556,12 @@ footer{
     </div>
 
     <div class="voice-progress"><span id="voiceProgress"></span></div>
+
+
     <audio id="voiceAudio" preload="metadata">
       <source src="./assets/prueba.mp3" type="audio/mpeg">
     </audio>
   </div>
-
   <div class="listen-reassurance">
     La música se abre en tu plataforma favorita. ETÉREO guarda el ritual, no reemplaza tu servicio de música.
   </div>
@@ -576,8 +577,6 @@ footer{
 </section>
 
 <section id="tracks">
-
-  <div class="eyebrow" style="margin-bottom:10px">DESPUÉS DE LA VOZ</div>
 
   <div class="insert-head">
     <div>
@@ -895,19 +894,16 @@ barPattern.forEach(v=>{
 function formatVoiceTime(seconds){
   if(!Number.isFinite(seconds)||seconds<0)return'00:00';
   const total=Math.floor(seconds);
-  const m=Math.floor(total/60);
-  const s=total%60;
-  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  return `${String(Math.floor(total/60)).padStart(2,'0')}:${String(total%60).padStart(2,'0')}`;
 }
 
-function updateVoiceWave(){
+function updateVoiceUI(){
   const duration=voiceAudio.duration||0;
   const current=voiceAudio.currentTime||0;
   const progress=duration ? current/duration : 0;
-  voiceProgress.style.width=`${progress*100}%`;
 
-  const remaining=Math.max(0,duration-current);
-  voiceTime.textContent=duration ? formatVoiceTime(remaining) : '00:00';
+  voiceProgress.style.width=`${progress*100}%`;
+  voiceTime.textContent=duration ? formatVoiceTime(Math.max(0,duration-current)) : '00:00';
 
   const bars=document.querySelectorAll('.voice-bar');
   const active=Math.floor(Math.max(0,Math.min(1,progress))*bars.length);
@@ -919,7 +915,7 @@ voiceAudio.addEventListener('loadedmetadata',()=>{
   voiceSub.textContent='Audio real · prueba.mp3';
 });
 
-voiceAudio.addEventListener('timeupdate',updateVoiceWave);
+voiceAudio.addEventListener('timeupdate',updateVoiceUI);
 
 voiceAudio.addEventListener('play',()=>{
   clickSound(.7);
@@ -954,9 +950,7 @@ voiceAudio.addEventListener('error',()=>{
 });
 
 voicePlay.addEventListener('click',async()=>{
-  if(voiceAudio.ended){
-    voiceAudio.currentTime=0;
-  }
+  if(voiceAudio.ended)voiceAudio.currentTime=0;
 
   if(voiceAudio.paused){
     try{
