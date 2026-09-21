@@ -47,7 +47,7 @@ footer{padding:32px 22px;border-top:1px solid var(--line);display:flex;justify-c
   <div class="kicker">Una cápsula para escuchar</div>
   <h1 id="mixtapeTitle">Para Sofía</h1>
   <p class="hero-copy">Una selección de canciones y una voz, guardadas en una cinta pensada solamente para ti.</p>
-  <div class="stage"><div id="scene"></div></div>
+  <div class="stage"><div id="scene"><div id="loading" style="position:absolute;inset:0;display:grid;place-items:center;color:#8e887f;font:9px DM Mono,monospace;letter-spacing:.16em;text-transform:uppercase;">Cargando cassette…</div></div></div>
   <div class="hint">Mueve el cursor · toca el cassette</div>
   <div class="controls"><button id="sideA" class="active">Side A</button><button id="sideB">Side B</button></div>
 </section>
@@ -66,6 +66,13 @@ footer{padding:32px 22px;border-top:1px solid var(--line);display:flex;justify-c
 <footer><span>ETÉREO LAB STUDIO</span><span>MIXTAPE</span></footer>
 </main>
 
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js"
+  }
+}
+</script>
 <script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js';
 import { STLLoader } from 'https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/loaders/STLLoader.js';
@@ -144,7 +151,7 @@ function makeLabelTexture(side='A'){
 function buildGeometryFromFirstComponent(bufferGeometry){
   const src=bufferGeometry.attributes.position.array;
   const kept=[];
-  const threshold=66.2; // the two copies in the uploaded STL are separated in Y
+  const threshold=166.0; // uploaded STL contains two 63.5 mm-tall cassette copies separated along Y
   for(let i=0;i<src.length;i+=9){
     const y=((src[i+1]+src[i+4]+src[i+7])/3);
     if(y < threshold){
@@ -198,6 +205,7 @@ function init(){
     });
     cassette=new THREE.Mesh(g,material);
     cassette.castShadow=true;cassette.receiveShadow=true;
+    const loading=document.getElementById('loading'); if(loading) loading.remove();
     cassette.rotation.x=targetRotX;
     scene.add(cassette);
 
@@ -218,7 +226,7 @@ function init(){
     resize();
   },undefined,err=>{
     console.error('No se pudo cargar el STL',err);
-    sceneEl.innerHTML='<div style="display:grid;place-items:center;height:100%;font:10px monospace;color:#d88b5e;letter-spacing:.1em">NO SE PUDO CARGAR EL CASSETTE</div>';
+    sceneEl.innerHTML='<div style="display:grid;place-items:center;height:100%;padding:20px;text-align:center;font:10px/1.6 DM Mono,monospace;color:#d88b5e;letter-spacing:.1em">NO SE PUDO CARGAR EL CASSETTE<br><span style="color:#8e887f">Revisa que exista /assets/cassette.stl</span></div>';
   });
 
   sceneEl.addEventListener('pointermove',e=>{
