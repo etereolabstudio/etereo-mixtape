@@ -184,10 +184,7 @@ body.opened #listen{opacity:1;transform:translateY(0);pointer-events:auto}
 .unlock-button:hover{border-color:rgba(221,142,92,.6);color:var(--accent)}
 
 
-
-#voiceAudio{
-  display:none;
-}
+#voiceAudio{display:none;}
 
 /* liner notes / analog insert */
 #tracks{
@@ -561,7 +558,6 @@ footer{
     </div>
 
     <div class="voice-progress"><span id="voiceProgress"></span></div>
-
     <audio id="voiceAudio" preload="metadata">
       <source src="./assets/prueba.mp3" type="audio/mpeg">
     </audio>
@@ -896,54 +892,34 @@ barPattern.forEach(v=>{
   voiceWave.appendChild(bar);
 });
 
-function formatTime(seconds){
-  if(!Number.isFinite(seconds) || seconds < 0) return '00:00';
+function formatVoiceTime(seconds){
+  if(!Number.isFinite(seconds)||seconds<0)return'00:00';
   const total=Math.floor(seconds);
   const m=Math.floor(total/60);
   const s=total%60;
   return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
 
-function setVoiceBars(progress){
+function updateVoiceWave(){
+  const duration=voiceAudio.duration||0;
+  const current=voiceAudio.currentTime||0;
+  const progress=duration ? current/duration : 0;
+  voiceProgress.style.width=`${progress*100}%`;
+
+  const remaining=Math.max(0,duration-current);
+  voiceTime.textContent=duration ? formatVoiceTime(remaining) : '00:00';
+
   const bars=document.querySelectorAll('.voice-bar');
   const active=Math.floor(Math.max(0,Math.min(1,progress))*bars.length);
   bars.forEach((b,i)=>b.classList.toggle('active',i<active));
 }
 
-function resetVoiceUI(){
-  voiceProgress.style.width='0%';
-  voiceTime.textContent=Number.isFinite(voiceAudio.duration)
-    ? formatTime(voiceAudio.duration)
-    : '00:00';
-  voiceState.textContent='Tu voz viene antes de la música.';
-  voiceSub.textContent='Audio de ejemplo · assets/prueba.mp3';
-  voicePlay.innerHTML='<span class="play-icon"></span>';
-  setVoiceBars(0);
-  unlock.classList.remove('show');
-}
-
-function updateVoiceUI(){
-  const duration=voiceAudio.duration||0;
-  const current=voiceAudio.currentTime||0;
-  const progress=duration ? current/duration : 0;
-
-  voiceProgress.style.width=`${progress*100}%`;
-  voiceTime.textContent=duration ? formatTime(Math.max(0,duration-current)) : '00:00';
-  setVoiceBars(progress);
-
-  if(!voiceAudio.paused){
-    voiceState.textContent='Reproduciendo la nota de voz…';
-    voiceSub.textContent='Audio real · prueba.mp3';
-    voicePlay.innerHTML='<span style="font:400 11px DM Mono,monospace">Ⅱ</span>';
-  }
-}
-
 voiceAudio.addEventListener('loadedmetadata',()=>{
-  voiceTime.textContent=formatTime(voiceAudio.duration);
-  voiceSub.textContent='Audio de ejemplo · prueba.mp3';
+  voiceTime.textContent=formatVoiceTime(voiceAudio.duration);
+  voiceSub.textContent='Audio real · prueba.mp3';
 });
 
-voiceAudio.addEventListener('timeupdate',updateVoiceUI);
+voiceAudio.addEventListener('timeupdate',updateVoiceWave);
 
 voiceAudio.addEventListener('play',()=>{
   clickSound(.7);
@@ -953,7 +929,7 @@ voiceAudio.addEventListener('play',()=>{
 });
 
 voiceAudio.addEventListener('pause',()=>{
-  if(voiceAudio.currentTime < voiceAudio.duration){
+  if(!voiceAudio.ended){
     voiceState.textContent='Nota pausada.';
     voiceSub.textContent='Presiona para continuar';
     voicePlay.innerHTML='<span class="play-icon"></span>';
@@ -966,7 +942,7 @@ voiceAudio.addEventListener('ended',()=>{
   voiceState.textContent='La nota terminó.';
   voiceSub.textContent='La cinta está lista para Side A.';
   voicePlay.innerHTML='<span style="font:400 12px DM Mono,monospace">↺</span>';
-  setVoiceBars(1);
+  document.querySelectorAll('.voice-bar').forEach(b=>b.classList.add('active'));
   unlock.classList.add('show');
   clickSound(.55);
 });
