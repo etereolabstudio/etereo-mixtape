@@ -1,12 +1,918 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Etéreo Mixtape</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0a0d">
+  <meta name="description" content="Etéreo Mixtape — una cápsula musical para guardar y volver a escuchar.">
+  <title>Mixtape — Etéreo</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #0b0a0d;
+      --bg-2: #111015;
+      --surface: rgba(24, 21, 28, .72);
+      --cream: #ede6d6;
+      --muted: #948e86;
+      --dim: #57515c;
+      --accent: #dd8e5c;
+      --line: rgba(237, 230, 214, .10);
+      --mono: "DM Mono", monospace;
+      --sans: "Outfit", sans-serif;
+      --serif: "Playfair Display", serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background:
+        radial-gradient(ellipse 60% 45% at 50% 15%, rgba(221,142,92,.08), transparent 68%),
+        radial-gradient(ellipse 45% 38% at 10% 90%, rgba(105,96,130,.07), transparent 70%),
+        var(--bg);
+      color: var(--cream);
+      font-family: var(--sans);
+      font-weight: 300;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 50;
+      opacity: .045;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      mix-blend-mode: overlay;
+    }
+
+    button, a { touch-action: manipulation; }
+    button { font: inherit; }
+    a { color: inherit; }
+
+    .mono {
+      font-family: var(--mono);
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    header {
+      position: fixed;
+      inset: 0 0 auto;
+      height: 72px;
+      padding: 0 26px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 20;
+      background: linear-gradient(to bottom, rgba(11,10,13,.92), rgba(11,10,13,0));
+    }
+
+    .brand {
+      font-family: var(--serif);
+      font-size: 20px;
+      text-decoration: none;
+    }
+
+    .brand small {
+      margin-left: 8px;
+      color: var(--muted);
+      font: 8px var(--mono);
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    .header-id {
+      color: var(--muted);
+      font: 8px var(--mono);
+      letter-spacing: .16em;
+    }
+
+    main { min-height: 100vh; }
+
+    .hero {
+      min-height: 100svh;
+      padding: 95px 18px 34px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hero-copy {
+      max-width: 560px;
+      text-align: center;
+      margin-bottom: 24px;
+      animation: fadeUp .9s ease both;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font: 8px var(--mono);
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      margin-bottom: 13px;
+    }
+
+    h1 {
+      margin: 0;
+      font: 400 clamp(35px, 6vw, 54px)/1.02 var(--serif);
+      letter-spacing: -.035em;
+    }
+
+    .hero-copy p {
+      max-width: 420px;
+      margin: 14px auto 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    #scene-shell {
+      position: relative;
+      width: min(94vw, 720px);
+      height: min(62vh, 540px);
+      min-height: 390px;
+    }
+
+    #scene {
+      position: absolute;
+      inset: 0;
+    }
+
+    .scene-hint {
+      position: absolute;
+      left: 50%;
+      bottom: 4px;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      color: var(--muted);
+      font: 8px var(--mono);
+      letter-spacing: .17em;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+
+    .shadow {
+      position: absolute;
+      left: 15%;
+      right: 15%;
+      bottom: 3%;
+      height: 23%;
+      border-radius: 50%;
+      background: rgba(0,0,0,.64);
+      filter: blur(26px);
+      pointer-events: none;
+    }
+
+    .ui-panel {
+      width: min(92vw, 620px);
+      margin: -10px auto 0;
+      padding: 0 20px 100px;
+      text-align: center;
+    }
+
+    .play-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 13px;
+    }
+
+    .play {
+      width: 58px;
+      height: 58px;
+      border: 1px solid rgba(237,230,214,.25);
+      border-radius: 50%;
+      background: rgba(255,255,255,.025);
+      color: var(--cream);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      transition: .25s ease;
+    }
+
+    .play:hover {
+      border-color: rgba(221,142,92,.65);
+      background: rgba(221,142,92,.12);
+      transform: scale(1.04);
+    }
+
+    .play-symbol {
+      width: 0;
+      height: 0;
+      margin-left: 4px;
+      border-top: 7px solid transparent;
+      border-bottom: 7px solid transparent;
+      border-left: 10px solid var(--cream);
+    }
+
+    .play-label {
+      text-align: left;
+      color: var(--muted);
+      font: 8px var(--mono);
+      line-height: 1.65;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+    }
+
+    .voice {
+      max-width: 620px;
+      margin: 0 auto;
+      padding: 88px 20px;
+      border-top: 1px solid var(--line);
+    }
+
+    .section-kicker {
+      color: var(--muted);
+      font: 8px var(--mono);
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .voice h2, .music h2 {
+      margin: 0;
+      font: 400 clamp(30px, 6vw, 42px)/1.05 var(--serif);
+    }
+
+    .voice h2 em { color: var(--accent); }
+
+    .voice p {
+      margin: 17px 0 28px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+      max-width: 450px;
+    }
+
+    .voice-player {
+      display: grid;
+      grid-template-columns: 44px 1fr auto;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .voice-play {
+      width: 44px;
+      height: 44px;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: transparent;
+      color: var(--cream);
+      cursor: pointer;
+    }
+
+    .voice-line {
+      height: 1px;
+      background: linear-gradient(90deg, var(--accent) 0 22%, var(--line) 22%);
+    }
+
+    .voice-time {
+      color: var(--muted);
+      font: 8px var(--mono);
+    }
+
+    .music {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 80px 20px 110px;
+    }
+
+    .music-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 15px;
+      margin-bottom: 32px;
+    }
+
+    .side-switch {
+      display: flex;
+      gap: 5px;
+    }
+
+    .side-btn {
+      padding: 9px 11px;
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font: 8px var(--mono);
+      letter-spacing: .12em;
+    }
+
+    .side-btn.active,
+    .side-btn:hover {
+      color: var(--cream);
+      border-color: rgba(221,142,92,.55);
+      background: rgba(221,142,92,.10);
+    }
+
+    .track {
+      display: grid;
+      grid-template-columns: 34px 1fr auto;
+      gap: 14px;
+      align-items: center;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--line);
+      cursor: pointer;
+      transition: padding .2s ease;
+    }
+
+    .track:hover { padding-left: 6px; padding-right: 6px; }
+
+    .track-num {
+      color: var(--dim);
+      font: 8px var(--mono);
+    }
+
+    .track-title {
+      font-size: 14px;
+    }
+
+    .track-artist {
+      margin-top: 4px;
+      color: var(--muted);
+      font: 8px var(--mono);
+    }
+
+    .track-note {
+      margin-top: 7px;
+      color: var(--accent);
+      font: italic 11px var(--serif);
+    }
+
+    .track-duration {
+      color: var(--muted);
+      font: 8px var(--mono);
+    }
+
+    footer {
+      padding: 30px 20px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      color: var(--dim);
+      font: 8px var(--mono);
+      letter-spacing: .12em;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      transform: translate(-50%, 20px);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 100;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      background: rgba(13,12,16,.92);
+      backdrop-filter: blur(12px);
+      color: var(--cream);
+      font: 8px var(--mono);
+      letter-spacing: .11em;
+      text-transform: uppercase;
+      transition: .25s ease;
+    }
+
+    .toast.show { opacity: 1; transform: translate(-50%,0); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 620px) {
+      header { height: 60px; padding: 0 16px; }
+      .brand { font-size: 18px; }
+      .brand small { display: none; }
+      .header-id { font-size: 7px; }
+      .hero { padding-top: 80px; }
+      #scene-shell { height: 55vh; min-height: 330px; }
+      .voice { padding-top: 65px; }
+      .track { grid-template-columns: 26px 1fr; }
+      .track-duration { display: none; }
+      footer { flex-direction: column; gap: 8px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,*::before,*::after { animation-duration: .001ms !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
+    }
+  </style>
 </head>
 <body>
-    <h1>Etéreo — Mixtape</h1>
-    <p>La experiencia está comenzando.</p>
+  <header>
+    <a class="brand" href="https://etereomx.com">Etéreo<small>Mixtape</small></a>
+    <div class="header-id" id="headerId">ET—MX—00127</div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow">Una cápsula para escuchar</div>
+        <h1 id="heroTitle">Hecho para ti.</h1>
+        <p id="heroSubtitle">Una selección de canciones, una voz y un momento guardado en una cinta.</p>
+      </div>
+
+      <div id="scene-shell" aria-label="Cassette Etéreo en 3D">
+        <div class="shadow"></div>
+        <div id="scene"></div>
+        <div class="scene-hint">Mueve el cursor · explora la cinta</div>
+      </div>
+
+      <div class="ui-panel">
+        <div class="play-row">
+          <button class="play" id="mainPlay" aria-label="Reproducir Mixtape">
+            <span class="play-symbol"></span>
+          </button>
+          <div class="play-label" id="playLabel">Presiona para comenzar<br>la Mixtape</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="voice">
+      <div class="section-kicker">Antes de escuchar</div>
+      <h2>Tengo algo que<br><em>decirte primero.</em></h2>
+      <p>Una pequeña nota de voz antes de comenzar la cinta. Esta parte será el primer audio personalizado de la Mixtape.</p>
+      <div class="voice-player">
+        <button class="voice-play" id="voiceButton" aria-label="Reproducir nota de voz">▶</button>
+        <div class="voice-line"></div>
+        <div class="voice-time">00:15</div>
+      </div>
+    </section>
+
+    <section class="music">
+      <div class="music-head">
+        <div>
+          <div class="section-kicker">La selección</div>
+          <h2>Side <span id="sideTitle">A</span></h2>
+        </div>
+        <div class="side-switch">
+          <button class="side-btn active" data-side="A">SIDE A</button>
+          <button class="side-btn" data-side="B">SIDE B</button>
+        </div>
+      </div>
+      <div id="trackList"></div>
+    </section>
+
+    <footer>
+      <span>ETÉREO LAB STUDIO</span>
+      <span>UNA CÁPSULA DEL TIEMPO</span>
+    </footer>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+
+    /* =========================================================
+       DEMO DATA
+       Later this object will come from Supabase.
+       ========================================================= */
+    const mixtape = {
+      id: 'ET-MX-00127',
+      recipient: 'Sofía',
+      sender: 'Andrés',
+      title: 'Para Sofía',
+      sides: {
+        A: [
+          { n: '01', title: 'Mystery of Love', artist: 'Sufjan Stevens', duration: '04:08', note: 'La primera que pensé cuando hice esta cinta.', url: 'https://open.spotify.com/' },
+          { n: '02', title: 'Sweet Disposition', artist: 'The Temper Trap', duration: '03:54', note: 'Para esos días que quiero recordar contigo.', url: 'https://open.spotify.com/' },
+          { n: '03', title: 'Apocalypse', artist: 'Cigarettes After Sex', duration: '04:50', note: '', url: 'https://open.spotify.com/' }
+        ],
+        B: [
+          { n: '01', title: "Nothing's Gonna Hurt You Baby", artist: 'Cigarettes After Sex', duration: '04:46', note: 'Porque esta canción siempre me lleva al mismo lugar.', url: 'https://open.spotify.com/' },
+          { n: '02', title: 'Space Song', artist: 'Beach House', duration: '05:20', note: '', url: 'https://open.spotify.com/' },
+          { n: '03', title: 'Young', artist: 'Vacations', duration: '03:25', note: 'Para cerrar la cinta.', url: 'https://open.spotify.com/' }
+        ]
+      }
+    };
+
+    /* =========================================================
+       BASIC UI
+       ========================================================= */
+    const params = new URLSearchParams(location.search);
+    const requestedId = params.get('id');
+    const displayId = requestedId ? requestedId.toUpperCase() : mixtape.id;
+    document.getElementById('headerId').textContent = displayId;
+    document.getElementById('heroTitle').textContent = mixtape.title || 'Hecho para ti.';
+
+    const toast = document.getElementById('toast');
+    let toastTimer = 0;
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2300);
+    }
+
+    /* =========================================================
+       TRACKLIST
+       ========================================================= */
+    let currentSide = 'A';
+    const trackList = document.getElementById('trackList');
+    const sideTitle = document.getElementById('sideTitle');
+
+    function renderTracks(side) {
+      currentSide = side;
+      sideTitle.textContent = side;
+      trackList.innerHTML = '';
+      document.querySelectorAll('.side-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.side === side);
+      });
+
+      for (const track of mixtape.sides[side]) {
+        const el = document.createElement('article');
+        el.className = 'track';
+        el.innerHTML = `
+          <div class="track-num">${track.n}</div>
+          <div>
+            <div class="track-title">${escapeHtml(track.title)}</div>
+            <div class="track-artist">${escapeHtml(track.artist)}</div>
+            ${track.note ? `<div class="track-note">${escapeHtml(track.note)}</div>` : ''}
+          </div>
+          <div class="track-duration">${track.duration}</div>
+        `;
+        el.addEventListener('click', () => window.open(track.url, '_blank', 'noopener,noreferrer'));
+        trackList.appendChild(el);
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    document.querySelectorAll('.side-btn').forEach(btn => {
+      btn.addEventListener('click', () => flipTo(btn.dataset.side));
+    });
+
+    renderTracks('A');
+
+    /* =========================================================
+       THREE.JS SCENE
+       The uploaded STL is a SPLIT cassette: two disconnected
+       cassette halves placed one after the other. We detect
+       those two halves by Y and use one physical cassette.
+       ========================================================= */
+    const container = document.getElementById('scene');
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 2000);
+    camera.position.set(0, 0, 235);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.setClearColor(0x000000, 0);
+    container.appendChild(renderer.domElement);
+
+    const hemi = new THREE.HemisphereLight(0xeae3d2, 0x17131b, 1.8);
+    scene.add(hemi);
+
+    const key = new THREE.DirectionalLight(0xffffff, 2.4);
+    key.position.set(-45, 70, 100);
+    scene.add(key);
+
+    const rim = new THREE.DirectionalLight(0xdd8e5c, 2.0);
+    rim.position.set(90, 10, 55);
+    scene.add(rim);
+
+    const fill = new THREE.DirectionalLight(0x827a9a, 1.0);
+    fill.position.set(-90, -55, 20);
+    scene.add(fill);
+
+    const cassetteGroup = new THREE.Group();
+    scene.add(cassetteGroup);
+
+    const front = new THREE.Group();
+    cassetteGroup.add(front);
+
+    let frontMesh = null;
+    let backLabel = null;
+    let frontLabel = null;
+    let leftReel = null;
+    let rightReel = null;
+    let tapeStrip = null;
+    let ready = false;
+
+    function makeMaterial() {
+      return new THREE.MeshPhysicalMaterial({
+        color: 0x111014,
+        roughness: 0.56,
+        metalness: 0.05,
+        clearcoat: 0.22,
+        clearcoatRoughness: 0.42,
+      });
+    }
+
+    function sliceCassetteGeometry(source, chooseLowerHalf = true) {
+      const pos = source.attributes.position;
+      const triCount = Math.floor(pos.count / 3);
+      let minY = Infinity;
+      let maxY = -Infinity;
+      for (let i = 0; i < pos.count; i++) {
+        minY = Math.min(minY, pos.getY(i));
+        maxY = Math.max(maxY, pos.getY(i));
+      }
+      const midY = (minY + maxY) / 2;
+      const vertices = [];
+      for (let t = 0; t < triCount; t++) {
+        const i = t * 3;
+        const y0 = pos.getY(i), y1 = pos.getY(i + 1), y2 = pos.getY(i + 2);
+        const cy = (y0 + y1 + y2) / 3;
+        const take = chooseLowerHalf ? cy < midY : cy >= midY;
+        if (!take) continue;
+        for (let k = 0; k < 3; k++) {
+          const idx = i + k;
+          vertices.push(pos.getX(idx), pos.getY(idx), pos.getZ(idx));
+        }
+      }
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+      geometry.computeVertexNormals();
+      return geometry;
+    }
+
+    function recenterAndScale(geometry) {
+      geometry.computeBoundingBox();
+      const box = geometry.boundingBox;
+      const center = new THREE.Vector3();
+      box.getCenter(center);
+      geometry.translate(-center.x, -center.y, -center.z);
+      geometry.computeBoundingBox();
+      const size = new THREE.Vector3();
+      geometry.boundingBox.getSize(size);
+      // Keep the STL in millimeter-like units; the camera was chosen around its natural size.
+      return size;
+    }
+
+    function makeLabelTexture(text, side) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1024;
+      canvas.height = 250;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#e7dfcb';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      grad.addColorStop(0, 'rgba(255,255,255,.14)');
+      grad.addColorStop(1, 'rgba(100,80,50,.08)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.strokeStyle = 'rgba(38,31,24,.18)';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(16, 16, canvas.width - 32, canvas.height - 32);
+
+      ctx.fillStyle = '#43382e';
+      ctx.textAlign = 'center';
+      ctx.font = '700 35px "DM Mono", monospace';
+      ctx.fillText(`ETÉREO · SIDE ${side}`, canvas.width / 2, 65);
+
+      ctx.fillStyle = '#201a18';
+      ctx.font = 'italic 78px "Playfair Display", serif';
+      ctx.fillText(text, canvas.width / 2, 158);
+
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.anisotropy = Math.min(renderer.capabilities.getMaxAnisotropy(), 8);
+      return texture;
+    }
+
+    function makeLabel(text, side, z, rotationY = 0) {
+      const mat = new THREE.MeshStandardMaterial({
+        map: makeLabelTexture(text, side),
+        roughness: .72,
+        metalness: 0,
+        transparent: false,
+      });
+      const plane = new THREE.Mesh(new THREE.PlaneGeometry(78, 15.5), mat);
+      plane.position.set(0, 25.5, z);
+      plane.rotation.y = rotationY;
+      return plane;
+    }
+
+    function makeReel() {
+      const group = new THREE.Group();
+      const outer = new THREE.Mesh(
+        new THREE.CylinderGeometry(6.4, 6.4, .85, 64),
+        new THREE.MeshStandardMaterial({ color: 0x464248, roughness: .48, metalness: .35 })
+      );
+      outer.rotation.x = Math.PI / 2;
+      group.add(outer);
+
+      const hub = new THREE.Mesh(
+        new THREE.CylinderGeometry(1.55, 1.55, 1.0, 32),
+        new THREE.MeshStandardMaterial({ color: 0x17151a, roughness: .42, metalness: .4 })
+      );
+      hub.rotation.x = Math.PI / 2;
+      group.add(hub);
+
+      for (let i = 0; i < 5; i++) {
+        const spoke = new THREE.Mesh(
+          new THREE.BoxGeometry(.65, 1.9, .95),
+          new THREE.MeshStandardMaterial({ color: 0xaaa39a, roughness: .38, metalness: .45 })
+        );
+        spoke.position.y = 3.2;
+        spoke.rotation.z = i * (Math.PI * 2 / 5);
+        group.add(spoke);
+      }
+      return group;
+    }
+
+    function makeTapePath() {
+      const material = new THREE.MeshStandardMaterial({ color: 0x2a1a13, roughness: .82, metalness: 0 });
+      const geo = new THREE.BoxGeometry(31, 0.55, 0.8);
+      const mesh = new THREE.Mesh(geo, material);
+      mesh.position.set(0, 0, 3.00);
+      return mesh;
+    }
+
+    function buildScene() {
+      const loader = new STLLoader();
+      loader.load(
+        './assets/cassette.stl',
+        (source) => {
+          // Use one of the two physical halves from the split STL.
+          const geometry = sliceCassetteGeometry(source, true);
+          recenterAndScale(geometry);
+
+          frontMesh = new THREE.Mesh(geometry, makeMaterial());
+          frontMesh.castShadow = true;
+          frontMesh.receiveShadow = true;
+          front.add(frontMesh);
+
+          // The dimensions of the actual model are ~104 x 63.5 x 6.3 mm.
+          leftReel = makeReel();
+          rightReel = makeReel();
+          leftReel.position.set(-21.3, -1.0, 3.00);
+          rightReel.position.set(21.3, -1.0, 3.00);
+          front.add(leftReel, rightReel);
+
+          tapeStrip = makeTapePath();
+          front.add(tapeStrip);
+
+          frontLabel = makeLabel(mixtape.title, 'A', 3.28, 0);
+          backLabel = makeLabel(mixtape.title, 'B', -3.28, Math.PI);
+          cassetteGroup.add(backLabel);
+          front.add(frontLabel);
+
+          ready = true;
+          fitCamera();
+        },
+        undefined,
+        (err) => {
+          console.error('No se pudo cargar cassette.stl', err);
+          showToast('No se pudo cargar el cassette.stl');
+        }
+      );
+    }
+
+    function fitCamera() {
+      const rect = container.getBoundingClientRect();
+      const aspect = Math.max(.5, rect.width / Math.max(1, rect.height));
+      camera.aspect = aspect;
+      camera.updateProjectionMatrix();
+      const vFov = THREE.MathUtils.degToRad(camera.fov);
+      const height = 63.5;
+      const distance = (height / 2) / Math.tan(vFov / 2) * 1.33;
+      camera.position.z = Math.max(165, Math.min(265, distance));
+    }
+
+    let targetX = 0;
+    let targetY = 0;
+    let currentX = 0;
+    let currentY = 0;
+    let flipTarget = 0;
+    let flipAngle = 0;
+    let isFlipping = false;
+    let playing = false;
+
+    function resize() {
+      const rect = container.getBoundingClientRect();
+      renderer.setSize(Math.max(1, rect.width), Math.max(1, rect.height), false);
+      fitCamera();
+    }
+
+    function animateFlip(toSide) {
+      if (!ready || isFlipping || currentSide === toSide) return;
+      isFlipping = true;
+      flipTarget = toSide === 'B' ? Math.PI : 0;
+      animateSideText(toSide);
+    }
+
+    function animateSideText(side) {
+      if (!frontLabel || !backLabel) return;
+      const texture = makeLabelTexture(mixtape.title, side);
+      if (side === 'A') frontLabel.material.map = texture;
+      else backLabel.material.map = texture;
+      frontLabel.material.needsUpdate = true;
+      backLabel.material.needsUpdate = true;
+    }
+
+    function flipTo(side) {
+      if (side === currentSide) return;
+      animateFlip(side);
+      renderTracks(side);
+    }
+
+    document.getElementById('mainPlay').addEventListener('click', () => {
+      playing = !playing;
+      document.getElementById('playLabel').innerHTML = playing
+        ? `Reproduciendo — Side ${currentSide}<br>los carretes están girando`
+        : `Presiona para comenzar<br>la Mixtape`;
+      showToast(playing ? 'Mixtape iniciada' : 'Mixtape pausada');
+    });
+
+    document.getElementById('voiceButton').addEventListener('click', () => {
+      showToast('Aquí conectaremos la nota de voz de 15 segundos.');
+    });
+
+    function pointerMove(event) {
+      const rect = container.getBoundingClientRect();
+      const x = (event.clientX - rect.left) / rect.width;
+      const y = (event.clientY - rect.top) / rect.height;
+      targetY = (x - .5) * .14;
+      targetX = (y - .5) * -.10;
+    }
+
+    function pointerLeave() {
+      targetX = 0;
+      targetY = 0;
+    }
+
+    container.addEventListener('pointermove', pointerMove, { passive: true });
+    container.addEventListener('pointerleave', pointerLeave, { passive: true });
+    window.addEventListener('resize', resize, { passive: true });
+
+    function ease(current, target, amount) {
+      return current + (target - current) * amount;
+    }
+
+    const clock = new THREE.Clock();
+
+    function render() {
+      const dt = Math.min(clock.getDelta(), .05);
+
+      currentX = ease(currentX, targetX, .06);
+      currentY = ease(currentY, targetY, .06);
+
+      const baseY = flipAngle;
+      cassetteGroup.rotation.x = currentX;
+      cassetteGroup.rotation.z = currentY;
+      cassetteGroup.rotation.y = baseY;
+
+      if (isFlipping) {
+        const diff = flipTarget - flipAngle;
+        flipAngle += diff * Math.min(1, dt * 9.5);
+        if (Math.abs(diff) < .005) {
+          flipAngle = flipTarget;
+          isFlipping = false;
+        }
+      }
+
+      const reelSpin = playing ? 3.8 : 0;
+      if (leftReel) leftReel.rotation.z += reelSpin * dt;
+      if (rightReel) rightReel.rotation.z += reelSpin * dt;
+
+      if (playing) {
+        // A very subtle mechanical breathing/vibration.
+        const pulse = 1 + Math.sin(performance.now() * .016) * .0018;
+        cassetteGroup.scale.set(pulse, pulse, pulse);
+      } else {
+        cassetteGroup.scale.setScalar(1);
+      }
+
+      renderer.render(scene, camera);
+      requestAnimationFrame(render);
+    }
+
+    buildScene();
+    resize();
+    render();
+  </script>
 </body>
 </html>
