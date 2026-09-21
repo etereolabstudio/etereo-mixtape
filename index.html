@@ -38,7 +38,7 @@ footer{margin-top:30px;color:rgba(155,148,136,.55);font-family:'DM Mono',monospa
   <div class="eyebrow">Una cápsula para escuchar</div>
   <h1>Para Sofía</h1>
   <p class="sub">Una selección de canciones y una voz, guardadas en una cinta pensada solamente para ti.</p>
-  <div class="stage"><div id="scene"></div><div class="hint">ETÉREO · MIxtape</div></div>
+  <div class="stage"><div id="scene"></div><div class="hint">ARRASTRA PARA EXPLORAR · RUEDA PARA ACERCAR</div></div>
   <div class="controls"><button class="active" id="sideA">Side A</button><button id="sideB">Side B</button></div>
   <div class="status" id="status">Cargando objeto…</div>
   <footer>ETÉREO LAB STUDIO · UNA CÁPSULA DEL TIEMPO</footer>
@@ -46,6 +46,7 @@ footer{margin-top:30px;color:rgba(155,148,136,.55);font-family:'DM Mono',monospa
 <script type="module">
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 const host=document.getElementById('scene');
 const status=document.getElementById('status');
@@ -72,6 +73,20 @@ const rim=new THREE.DirectionalLight(0xdd8e5c,1.1);rim.position.set(70,-55,-90);
 
 const root=new THREE.Group();
 scene.add(root);
+
+const controls=new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;
+controls.dampingFactor=.08;
+controls.enablePan=false;
+controls.enableZoom=true;
+controls.zoomSpeed=.65;
+controls.rotateSpeed=.55;
+controls.minDistance=92;
+controls.maxDistance=190;
+controls.minPolarAngle=Math.PI*.14;
+controls.maxPolarAngle=Math.PI*.86;
+controls.target.set(0,0,0);
+controls.update();
 let model=null;let baseRotation=new THREE.Euler(0,0,0);let targetRotation=new THREE.Euler(0,0,0);
 
 function resize(){
@@ -105,7 +120,9 @@ function frameModel(obj){
  // Keep the broad face toward the viewer. GLB source is XY plane with Z thickness.
  obj.rotation.set(0,0,0);
  camera.position.set(0,0,150);
- camera.lookAt(0,0,0);camera.lookAt(0,0,0);
+ camera.lookAt(0,0,0);
+ controls.target.set(0,0,0);
+ controls.update();
 }
 
 function setSide(side){
@@ -128,16 +145,9 @@ new GLTFLoader().load('./assets/cassette_assembled.glb',gltf=>{
  status.textContent='No se pudo cargar el objeto 3D';
 });
 
-let px=0,py=0;
-window.addEventListener('pointermove',e=>{
- px=(e.clientX/innerWidth-.5);py=(e.clientY/innerHeight-.5);
-});
-
 function tick(){
  requestAnimationFrame(tick);
-  if(model){
-   // Golden baseline: the verified GLB orientation is never altered.
- }
+ controls.update();
  renderer.render(scene,camera);
 }
 tick();
