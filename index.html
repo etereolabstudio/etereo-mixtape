@@ -556,12 +556,11 @@ footer{
     </div>
 
     <div class="voice-progress"><span id="voiceProgress"></span></div>
-
-
     <audio id="voiceAudio" preload="metadata">
       <source src="./assets/prueba.mp3" type="audio/mpeg">
     </audio>
   </div>
+
   <div class="listen-reassurance">
     La música se abre en tu plataforma favorita. ETÉREO guarda el ritual, no reemplaza tu servicio de música.
   </div>
@@ -598,7 +597,7 @@ footer{
     <div class="liner-jcard-edge"></div>
 
     <div class="liner-topline">
-      <span>ETÉREO · MIXTAPE 00127 · DEMO</span>
+      <span>ETÉREO · MIXTAPE 00127</span>
       <span id="linerSideLabel">SIDE A</span>
     </div>
 
@@ -626,7 +625,39 @@ footer{
       </div>
     </div>
 
-    <div class="track-list" id="trackList"></div>
+    <div class="track-list" id="trackList">
+    <div class="track-row demo-static-row" data-demo-side="A"
+         data-title="Mystery of Love" data-artist="Sufjan Stevens">
+      <div class="track-number">01</div>
+      <div>
+        <div class="track-name">Mystery of Love</div>
+        <div class="track-artist">Sufjan Stevens</div>
+        <div class="track-note">La primera que pensé para esta cinta.</div>
+      </div>
+      <div class="track-open">04:08<br>ESCUCHAR ↗</div>
+    </div>
+
+    <div class="track-row demo-static-row" data-demo-side="A"
+         data-title="Sweet Disposition" data-artist="The Temper Trap">
+      <div class="track-number">02</div>
+      <div>
+        <div class="track-name">Sweet Disposition</div>
+        <div class="track-artist">The Temper Trap</div>
+        <div class="track-note">Para los días que quiero guardar.</div>
+      </div>
+      <div class="track-open">03:54<br>ESCUCHAR ↗</div>
+    </div>
+
+    <div class="track-row demo-static-row" data-demo-side="A"
+         data-title="Apocalypse" data-artist="Cigarettes After Sex">
+      <div class="track-number">03</div>
+      <div>
+        <div class="track-name">Apocalypse</div>
+        <div class="track-artist">Cigarettes After Sex</div>
+      </div>
+      <div class="track-open">04:50<br>ESCUCHAR ↗</div>
+    </div>
+</div>
 
     <div class="liner-footer">
       <span>SELECTED ONE BY ONE</span>
@@ -694,6 +725,231 @@ footer{
     </div>
   </div>
 </div>
+
+
+<script>
+(function(){
+  const songs = {
+    A: [
+      {
+        n:'01',
+        title:'Mystery of Love',
+        artist:'Sufjan Stevens',
+        note:'La primera que pensé para esta cinta.',
+        duration:'04:08',
+        spotify:'https://open.spotify.com/search/Mystery%20of%20Love%20Sufjan%20Stevens',
+        apple:'https://music.apple.com/us/search?term=Mystery%20of%20Love%20Sufjan%20Stevens',
+        youtube:'https://www.youtube.com/results?search_query=Mystery+of+Love+Sufjan+Stevens'
+      },
+      {
+        n:'02',
+        title:'Sweet Disposition',
+        artist:'The Temper Trap',
+        note:'Para los días que quiero guardar.',
+        duration:'03:54',
+        spotify:'https://open.spotify.com/search/Sweet%20Disposition%20The%20Temper%20Trap',
+        apple:'https://music.apple.com/us/search?term=Sweet%20Disposition%20The%20Temper%20Trap',
+        youtube:'https://www.youtube.com/results?search_query=Sweet+Disposition+The+Temper+Trap'
+      },
+      {
+        n:'03',
+        title:'Apocalypse',
+        artist:'Cigarettes After Sex',
+        note:'',
+        duration:'04:50',
+        spotify:'https://open.spotify.com/search/Apocalypse%20Cigarettes%20After%20Sex',
+        apple:'https://music.apple.com/us/search?term=Apocalypse%20Cigarettes%20After%20Sex',
+        youtube:'https://www.youtube.com/results?search_query=Apocalypse+Cigarettes+After+Sex'
+      }
+    ],
+    B: [
+      {
+        n:'01',
+        title:"Nothing's Gonna Hurt You Baby",
+        artist:'Cigarettes After Sex',
+        note:'Para escuchar despacio.',
+        duration:'04:46',
+        spotify:'https://open.spotify.com/search/Nothing%27s%20Gonna%20Hurt%20You%20Baby%20Cigarettes%20After%20Sex',
+        apple:'https://music.apple.com/us/search?term=Nothing%27s%20Gonna%20Hurt%20You%20Baby%20Cigarettes%20After%20Sex',
+        youtube:'https://www.youtube.com/results?search_query=Nothing%27s+Gonna+Hurt+You+Baby+Cigarettes+After+Sex'
+      },
+      {
+        n:'02',
+        title:'Space Song',
+        artist:'Beach House',
+        note:'',
+        duration:'05:20',
+        spotify:'https://open.spotify.com/search/Space%20Song%20Beach%20House',
+        apple:'https://music.apple.com/us/search?term=Space%20Song%20Beach%20House',
+        youtube:'https://www.youtube.com/results?search_query=Space+Song+Beach+House'
+      },
+      {
+        n:'03',
+        title:'Young',
+        artist:'Vacations',
+        note:'Para cerrar la cinta.',
+        duration:'03:25',
+        spotify:'https://open.spotify.com/search/Young%20Vacations',
+        apple:'https://music.apple.com/us/search?term=Young%20Vacations',
+        youtube:'https://www.youtube.com/results?search_query=Young+Vacations'
+      }
+    ]
+  };
+
+  const list=document.getElementById('trackList');
+  const sideA=document.getElementById('sideToggleA');
+  const sideB=document.getElementById('sideToggleB');
+  const sideTitle=document.getElementById('sideTitle');
+  const linerSide=document.getElementById('linerSideLabel');
+  const linerLetter=document.getElementById('linerLetter');
+  const linerCount=document.getElementById('linerTrackCount');
+  const linerTotal=document.getElementById('linerTotalTime');
+  const fill=document.getElementById('tapeProgressFill');
+  const marker=document.getElementById('tapeProgressMarker');
+
+  const panel=document.getElementById('listenPanel');
+  const panelTitle=document.getElementById('panelTitle');
+  const panelArtist=document.getElementById('panelArtist');
+  const spotifyLink=document.getElementById('spotifyLink');
+  const appleLink=document.getElementById('appleLink');
+  const youtubeLink=document.getElementById('youtubeLink');
+
+  function secondsTotal(side){
+    return songs[side].reduce((total,t)=>{
+      const [m,s]=t.duration.split(':').map(Number);
+      return total+(m*60+s);
+    },0);
+  }
+
+  function openPanel(track){
+    if(!panel)return;
+    panelTitle.textContent=track.title;
+    panelArtist.textContent=track.artist;
+    spotifyLink.href=track.spotify;
+    appleLink.href=track.apple;
+    youtubeLink.href=track.youtube;
+    panel.classList.add('open');
+    panel.setAttribute('aria-hidden','false');
+  }
+
+  function renderFallbackSide(side){
+    if(!list)return;
+
+    sideTitle.textContent='Side '+side;
+    sideA?.classList.toggle('active',side==='A');
+    sideB?.classList.toggle('active',side==='B');
+
+    if(linerSide)linerSide.textContent='SIDE '+side;
+    if(linerLetter)linerLetter.textContent=side;
+    if(linerCount)linerCount.textContent=String(songs[side].length).padStart(2,'0')+' TRACKS';
+
+    const total=secondsTotal(side);
+    if(linerTotal)linerTotal.textContent=Math.floor(total/60)+':'+String(total%60).padStart(2,'0');
+
+    if(fill)fill.style.width=side==='A'?'34%':'72%';
+    if(marker)marker.style.left=side==='A'?'34%':'72%';
+
+    list.innerHTML='';
+
+    songs[side].forEach(track=>{
+      const row=document.createElement('div');
+      row.className='track-row';
+      row.innerHTML=`
+        <div class="track-number">${track.n}</div>
+        <div>
+          <div class="track-name">${track.title}</div>
+          <div class="track-artist">${track.artist}</div>
+          ${track.note?`<div class="track-note">${track.note}</div>`:''}
+        </div>
+        <div class="track-open">${track.duration}<br>ESCUCHAR ↗</div>
+      `;
+      row.addEventListener('click',()=>openPanel(track));
+      list.appendChild(row);
+    });
+  }
+
+  sideA?.addEventListener('click',()=>renderFallbackSide('A'));
+  sideB?.addEventListener('click',()=>renderFallbackSide('B'));
+
+  document.getElementById('closePanel')?.addEventListener('click',()=>{
+    panel?.classList.remove('open');
+    panel?.setAttribute('aria-hidden','true');
+  });
+  panel?.addEventListener('click',e=>{
+    if(e.target===panel){
+      panel.classList.remove('open');
+      panel.setAttribute('aria-hidden','true');
+    }
+  });
+
+  // Initial visible demo.
+  renderFallbackSide('A');
+
+  // Real sample voice audio.
+  const audio=document.getElementById('voiceAudio');
+  const play=document.getElementById('voicePlay');
+  const progress=document.getElementById('voiceProgress');
+  const time=document.getElementById('voiceTime');
+  const state=document.getElementById('voiceState');
+  const sub=document.getElementById('voiceSub');
+  const unlock=document.getElementById('unlock');
+  const bars=document.querySelectorAll('.voice-bar');
+
+  function fmt(s){
+    if(!Number.isFinite(s))return'00:00';
+    s=Math.max(0,Math.floor(s));
+    return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+  }
+  function ui(){
+    if(!audio)return;
+    const d=audio.duration||0, c=audio.currentTime||0, p=d?c/d:0;
+    if(progress)progress.style.width=(p*100)+'%';
+    if(time)time.textContent=d?fmt(d-c):'00:00';
+    bars.forEach((b,i)=>b.classList.toggle('active',i<Math.floor(p*bars.length)));
+  }
+  audio?.addEventListener('loadedmetadata',()=>{
+    if(time)time.textContent=fmt(audio.duration);
+    if(sub)sub.textContent='Audio real · prueba.mp3';
+  });
+  audio?.addEventListener('timeupdate',ui);
+  audio?.addEventListener('play',()=>{
+    if(state)state.textContent='Reproduciendo la nota de voz…';
+    if(sub)sub.textContent='Audio real · prueba.mp3';
+    if(play)play.innerHTML='<span style="font:400 11px DM Mono,monospace">Ⅱ</span>';
+  });
+  audio?.addEventListener('pause',()=>{
+    if(!audio.ended){
+      if(state)state.textContent='Nota pausada.';
+      if(sub)sub.textContent='Presiona para continuar';
+      if(play)play.innerHTML='<span class="play-icon"></span>';
+    }
+  });
+  audio?.addEventListener('ended',()=>{
+    if(progress)progress.style.width='100%';
+    if(time)time.textContent='00:00';
+    if(state)state.textContent='La nota terminó.';
+    if(sub)sub.textContent='La cinta está lista para Side A.';
+    if(play)play.innerHTML='<span style="font:400 12px DM Mono,monospace">↺</span>';
+    bars.forEach(b=>b.classList.add('active'));
+    unlock?.classList.add('show');
+  });
+  audio?.addEventListener('error',()=>{
+    if(state)state.textContent='No se encontró el audio de ejemplo.';
+    if(sub)sub.textContent='Sube assets/prueba.mp3 al repositorio.';
+  });
+  play?.addEventListener('click',()=>{
+    if(!audio)return;
+    if(audio.ended)audio.currentTime=0;
+    if(audio.paused){
+      audio.play().catch(()=>{
+        if(state)state.textContent='No se pudo reproducir el audio.';
+      });
+    }else{
+      audio.pause();
+    }
+  });
+})();
+</script>
 
 <script type="module">
 import * as THREE from 'three';
@@ -866,7 +1122,7 @@ startButton.addEventListener('click',()=>{
 });
 
 /* =========================
-   VOICE DEMO — REAL AUDIO
+   VOICE DEMO
    ========================= */
 
 const voicePlay=document.getElementById('voicePlay');
@@ -876,7 +1132,6 @@ const voiceState=document.getElementById('voiceState');
 const voiceSub=document.getElementById('voiceSub');
 const unlock=document.getElementById('unlock');
 const voiceWave=document.getElementById('voiceWave');
-const voiceAudio=document.getElementById('voiceAudio');
 
 const barPattern=[
   .25,.39,.62,.41,.77,.33,.53,.82,.45,.67,.38,.58,.74,.31,.61,.44,
@@ -891,48 +1146,25 @@ barPattern.forEach(v=>{
   voiceWave.appendChild(bar);
 });
 
-function formatVoiceTime(seconds){
-  if(!Number.isFinite(seconds)||seconds<0)return'00:00';
-  const total=Math.floor(seconds);
-  return `${String(Math.floor(total/60)).padStart(2,'0')}:${String(total%60).padStart(2,'0')}`;
+let voicePlaying=false;
+let voiceTimer=null;
+let voiceStartedAt=0;
+const VOICE_DURATION=15;
+
+function resetVoice(){
+  clearInterval(voiceTimer);
+  voicePlaying=false;
+  voiceProgress.style.width='0%';
+  voiceTime.textContent='00:15';
+  voiceState.textContent='Tu voz viene antes de la música.';
+  voiceSub.textContent='15 segundos · demo de la experiencia';
+  voicePlay.innerHTML='<span class="play-icon"></span>';
+  document.querySelectorAll('.voice-bar').forEach(b=>b.classList.remove('active'));
 }
 
-function updateVoiceUI(){
-  const duration=voiceAudio.duration||0;
-  const current=voiceAudio.currentTime||0;
-  const progress=duration ? current/duration : 0;
-
-  voiceProgress.style.width=`${progress*100}%`;
-  voiceTime.textContent=duration ? formatVoiceTime(Math.max(0,duration-current)) : '00:00';
-
-  const bars=document.querySelectorAll('.voice-bar');
-  const active=Math.floor(Math.max(0,Math.min(1,progress))*bars.length);
-  bars.forEach((b,i)=>b.classList.toggle('active',i<active));
-}
-
-voiceAudio.addEventListener('loadedmetadata',()=>{
-  voiceTime.textContent=formatVoiceTime(voiceAudio.duration);
-  voiceSub.textContent='Audio real · prueba.mp3';
-});
-
-voiceAudio.addEventListener('timeupdate',updateVoiceUI);
-
-voiceAudio.addEventListener('play',()=>{
-  clickSound(.7);
-  voiceState.textContent='Reproduciendo la nota de voz…';
-  voiceSub.textContent='Audio real · prueba.mp3';
-  voicePlay.innerHTML='<span style="font:400 11px DM Mono,monospace">Ⅱ</span>';
-});
-
-voiceAudio.addEventListener('pause',()=>{
-  if(!voiceAudio.ended){
-    voiceState.textContent='Nota pausada.';
-    voiceSub.textContent='Presiona para continuar';
-    voicePlay.innerHTML='<span class="play-icon"></span>';
-  }
-});
-
-voiceAudio.addEventListener('ended',()=>{
+function finishVoice(){
+  clearInterval(voiceTimer);
+  voicePlaying=false;
   voiceProgress.style.width='100%';
   voiceTime.textContent='00:00';
   voiceState.textContent='La nota terminó.';
@@ -941,34 +1173,55 @@ voiceAudio.addEventListener('ended',()=>{
   document.querySelectorAll('.voice-bar').forEach(b=>b.classList.add('active'));
   unlock.classList.add('show');
   clickSound(.55);
-});
+}
 
-voiceAudio.addEventListener('error',()=>{
-  voiceState.textContent='No se encontró el audio de ejemplo.';
-  voiceSub.textContent='Sube assets/prueba.mp3 al repositorio.';
-  voicePlay.innerHTML='<span class="play-icon"></span>';
-});
+function startVoice(){
+  clickSound(.7);
+  voicePlaying=true;
+  voiceStartedAt=performance.now();
+  voiceState.textContent='Reproduciendo la nota de voz…';
+  voiceSub.textContent='Demo visual · el audio real se conectará después';
+  voicePlay.innerHTML='<span style="font:400 11px DM Mono,monospace">Ⅱ</span>';
+  clearInterval(voiceTimer);
 
-voicePlay.addEventListener('click',async()=>{
-  if(voiceAudio.ended)voiceAudio.currentTime=0;
+  voiceTimer=setInterval(()=>{
+    const elapsed=(performance.now()-voiceStartedAt)/1000;
+    const progress=Math.min(1,elapsed/VOICE_DURATION);
+    const left=Math.max(0,Math.ceil(VOICE_DURATION-elapsed));
 
-  if(voiceAudio.paused){
-    try{
-      await voiceAudio.play();
-    }catch(err){
-      voiceState.textContent='No se pudo reproducir el audio.';
-      voiceSub.textContent='Comprueba que exista assets/prueba.mp3';
-    }
-  }else{
-    voiceAudio.pause();
+    voiceProgress.style.width=`${progress*100}%`;
+    voiceTime.textContent=`00:${String(left).padStart(2,'0')}`;
+
+    const bars=document.querySelectorAll('.voice-bar');
+    const activeCount=Math.floor(progress*bars.length);
+    bars.forEach((b,i)=>b.classList.toggle('active',i<activeCount));
+
+    if(progress>=1)finishVoice();
+  },60);
+}
+
+voicePlay.addEventListener('click',()=>{
+  if(!voicePlaying && unlock.classList.contains('show')){
+    resetVoice();
+    startVoice();
+    return;
   }
+  if(voicePlaying){
+    clearInterval(voiceTimer);
+    voicePlaying=false;
+    voiceState.textContent='Nota pausada.';
+    voiceSub.textContent='Presiona para continuar';
+    voicePlay.innerHTML='<span class="play-icon"></span>';
+    return;
+  }
+  startVoice();
 });
 
 document.getElementById('openSideA').addEventListener('click',()=>{
-  document.getElementById('tracks').scrollIntoView({
-    behavior:'smooth',
-    block:'start'
-  });
+  document.body.classList.add('music-open');
+  setTimeout(()=>{
+    document.getElementById('tracks').scrollIntoView({behavior:'smooth',block:'start'});
+  },130);
 });
 
 /* =========================
