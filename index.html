@@ -1,394 +1,146 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<meta name="theme-color" content="#0c0b0f" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0c0b0f">
 <title>Etéreo — Mixtape</title>
-<meta name="description" content="Una selección hecha para ti. Una Mixtape de Etéreo." />
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
-
 <style>
-:root{
-  --bg:#0c0b0f;
-  --bg-2:#111015;
-  --cream:#ede6d6;
-  --muted:#9b9488;
-  --line:rgba(237,230,214,.11);
-  --accent:#dd8e5c;
-  --label:#e8deca;
-  --ink:#201d19;
-  --mono:'DM Mono',monospace;
-  --sans:'Outfit',sans-serif;
-  --serif:'Playfair Display',serif;
-  --clash:'Clash Display',sans-serif;
-}
-*{box-sizing:border-box}
-html,body{margin:0;min-height:100%;background:var(--bg);color:var(--cream);overflow-x:hidden}
-body{font-family:var(--sans);font-weight:300}
-body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:20;background:radial-gradient(ellipse 48% 42% at 50% 38%,rgba(221,142,92,.08),transparent 70%),radial-gradient(ellipse 60% 55% at 50% 120%,rgba(111,97,75,.05),transparent 70%)}
-body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:30;opacity:.055;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E");mix-blend-mode:soft-light}
-button{font:inherit}
-
-.site{min-height:100svh;display:grid;grid-template-rows:auto 1fr auto}
-.header{position:fixed;top:0;left:0;right:0;z-index:40;height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 30px;background:linear-gradient(to bottom,rgba(12,11,15,.96),rgba(12,11,15,0))}
-.brand{font-family:var(--clash);font-size:12px;letter-spacing:.34em;color:var(--cream);text-decoration:none}
-.header-meta{font:500 8px/1 var(--mono);letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
-
-.hero{min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:88px 18px 46px;position:relative}
-.copy{position:relative;z-index:4;text-align:center;margin-top:-3vh;pointer-events:none}
-.kicker{font:400 9px/1 var(--mono);letter-spacing:.25em;color:var(--accent);text-transform:uppercase;margin-bottom:16px}
-h1{margin:0;font:400 clamp(42px,7vw,74px)/.98 var(--serif);letter-spacing:-.035em;color:var(--cream)}
-.hero-note{max-width:430px;margin:17px auto 0;color:var(--muted);font-size:13px;line-height:1.65}
-
-.stage{position:relative;width:min(980px,94vw);height:min(620px,67vh);min-height:420px;margin-top:-2vh}
-#scene{position:absolute;inset:0;z-index:2;touch-action:none}
-.loading{position:absolute;inset:0;z-index:3;display:grid;place-items:center;pointer-events:none;font:400 8px var(--mono);letter-spacing:.18em;color:var(--muted);text-transform:uppercase;transition:opacity .5s}
-.loading.hidden{opacity:0}
-.shadow{position:absolute;z-index:1;left:50%;top:66%;width:min(620px,72vw);height:130px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(ellipse,rgba(0,0,0,.8),rgba(0,0,0,0) 72%);filter:blur(24px)}
-
-.controls{position:absolute;z-index:5;left:50%;bottom:22px;transform:translateX(-50%);display:flex;gap:8px}
-.side-btn{border:1px solid rgba(237,230,214,.14);background:rgba(12,11,15,.55);color:var(--muted);padding:10px 15px;min-width:74px;font:500 8px var(--mono);letter-spacing:.13em;text-transform:uppercase;cursor:pointer;backdrop-filter:blur(8px);transition:.22s}
-.side-btn:hover{color:var(--cream);border-color:rgba(221,142,92,.5)}
-.side-btn.active{color:var(--cream);border-color:rgba(221,142,92,.6);background:rgba(221,142,92,.08)}
-
-.object-meta{position:absolute;right:20px;bottom:26px;z-index:5;text-align:right;font:400 8px/1.55 var(--mono);letter-spacing:.11em;color:rgba(155,148,136,.7);text-transform:uppercase}
-.object-meta strong{color:var(--cream);font-weight:500}
-
-.after{border-top:1px solid var(--line);width:min(900px,calc(100% - 40px));margin:0 auto;padding:34px 0 50px;display:flex;justify-content:space-between;align-items:center;gap:20px}
-.after-copy{font-size:12px;color:var(--muted);line-height:1.55}
-.after-copy strong{display:block;color:var(--cream);font-family:var(--serif);font-weight:400;font-size:18px;margin-bottom:3px}
-.after-hint{font:400 8px var(--mono);letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
-
-@media(max-width:700px){
-  .header{padding:0 18px}
-  .header-meta{font-size:7px}
-  .hero{padding-top:76px}
-  .copy{margin-top:-4vh}
-  h1{font-size:clamp(42px,14vw,58px)}
-  .hero-note{max-width:320px;font-size:12px}
-  .stage{height:66vh;min-height:420px;width:100vw;margin-top:-2vh}
-  .controls{bottom:14px}
-  .object-meta{right:16px;bottom:62px;font-size:7px}
-  .after{padding:28px 0 34px;align-items:flex-start;flex-direction:column}
-}
-
-@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap');
+:root{--bg:#0c0b0f;--text:#ede6d6;--muted:#9b9488;--accent:#dd8e5c;--line:rgba(237,230,214,.12)}
+*{box-sizing:border-box} html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text)}
+body{font-family:Outfit,sans-serif;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:20;opacity:.055;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E")}
+header{position:fixed;top:0;left:0;right:0;padding:24px 28px;display:flex;justify-content:space-between;align-items:center;z-index:30;pointer-events:none}
+.brand{font-family:'Playfair Display',serif;font-size:18px;letter-spacing:-.02em}.brand small{font-family:'DM Mono',monospace;color:var(--muted);font-size:8px;letter-spacing:.18em;text-transform:uppercase;margin-left:8px}
+.id{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:.16em}
+main{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:74px 18px 50px}
+.eyebrow{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);text-align:center;margin-bottom:14px}
+h1{font-family:'Playfair Display',serif;font-size:clamp(38px,7vw,68px);font-weight:400;letter-spacing:-.03em;line-height:.98;text-align:center;margin:0}
+.sub{max-width:460px;text-align:center;color:var(--muted);font-size:13px;line-height:1.65;margin:18px auto 0;font-weight:300}
+.stage{position:relative;width:min(94vw,820px);height:min(64vw,560px);min-height:340px;margin-top:34px;display:flex;align-items:center;justify-content:center}
+.stage:after{content:"";position:absolute;width:55%;height:10%;bottom:12%;left:22.5%;background:rgba(0,0,0,.65);filter:blur(28px);border-radius:50%;pointer-events:none}
+#scene{position:absolute;inset:0}
+.hint{position:absolute;left:0;right:0;bottom:2px;text-align:center;font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.controls{display:flex;gap:8px;margin-top:18px;z-index:10}
+button{appearance:none;border:1px solid var(--line);background:transparent;color:var(--text);padding:11px 15px;font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.13em;text-transform:uppercase;cursor:pointer;transition:.22s}
+button:hover{border-color:rgba(221,142,92,.55);color:var(--accent);background:rgba(221,142,92,.06)}
+button.active{border-color:rgba(221,142,92,.65);background:rgba(221,142,92,.09);color:var(--accent)}
+.status{margin-top:12px;font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:.12em;min-height:14px;text-align:center}
+footer{margin-top:30px;color:rgba(155,148,136,.55);font-family:'DM Mono',monospace;font-size:7px;letter-spacing:.18em;text-transform:uppercase;text-align:center}
+@media(max-width:560px){header{padding:18px 16px}.brand{font-size:16px}.brand small{display:none}.stage{height:74vw;min-height:300px;margin-top:22px}.sub{font-size:12px;max-width:330px}.controls{margin-top:10px}}
 </style>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.164.1/build/three.module.js","three/addons/":"https://unpkg.com/three@0.164.1/examples/jsm/"}}</script>
 </head>
-
 <body>
-<div class="site">
-  <header class="header">
-    <a class="brand" href="https://etereomx.com">ETÉREO</a>
-    <div class="header-meta" id="headerId">ET—MX—00127</div>
-  </header>
-
-  <main class="hero">
-    <div class="copy">
-      <div class="kicker">Una cápsula para escuchar</div>
-      <h1 id="recipientTitle">Para Sofía</h1>
-      <p class="hero-note">Una selección de canciones y una voz, guardadas en una cinta pensada solamente para ti.</p>
-    </div>
-
-    <div class="stage" id="stage">
-      <div id="scene" aria-label="Mixtape de Etéreo"></div>
-      <div class="shadow"></div>
-      <div class="loading" id="loading">Cargando pieza</div>
-
-      <div class="object-meta">
-        <div><strong id="sideStatus">SIDE A</strong></div>
-        <div>MIXTAPE · 00127</div>
-      </div>
-
-      <div class="controls" role="group" aria-label="Seleccionar lado">
-        <button class="side-btn active" data-side="A">Side A</button>
-        <button class="side-btn" data-side="B">Side B</button>
-      </div>
-    </div>
-  </main>
-
-  <section class="after">
-    <div class="after-copy">
-      <strong id="sectionTitle">Una selección para guardar.</strong>
-      <span id="sectionCopy">Primero escucha la voz. Después, recorre la cinta canción por canción.</span>
-    </div>
-    <div class="after-hint">Toca el cassette para explorar</div>
-  </section>
-</div>
-
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
-  }
-}
-</script>
-
+<header><div class="brand">Etéreo <small>Mixtape</small></div><div class="id">ET—MX—00127</div></header>
+<main>
+  <div class="eyebrow">Una cápsula para escuchar</div>
+  <h1>Para Sofía</h1>
+  <p class="sub">Una selección de canciones y una voz, guardadas en una cinta pensada solamente para ti.</p>
+  <div class="stage"><div id="scene"></div><div class="hint">ETÉREO · MIxtape</div></div>
+  <div class="controls"><button class="active" id="sideA">Side A</button><button id="sideB">Side B</button></div>
+  <div class="status" id="status">Cargando objeto…</div>
+  <footer>ETÉREO LAB STUDIO · UNA CÁPSULA DEL TIEMPO</footer>
+</main>
 <script type="module">
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
-const sceneEl = document.getElementById('scene');
-const stage = document.getElementById('stage');
-const loading = document.getElementById('loading');
-const statusEl = document.getElementById('sideStatus');
-const sideButtons = [...document.querySelectorAll('.side-btn')];
-const recipientTitle = document.getElementById('recipientTitle');
+const host=document.getElementById('scene');
+const status=document.getElementById('status');
+const sideA=document.getElementById('sideA');
+const sideB=document.getElementById('sideB');
 
-const MIXTAPE = {
-  id: 'ET-MX-00127',
-  recipient: 'Sofía',
-  sender: 'Andrés',
-  sideA: { title: 'Una selección para guardar.' },
-  sideB: { title: 'La otra mitad de la historia.' }
-};
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(host.clientWidth,host.clientHeight);
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.15;
+host.appendChild(renderer.domElement);
 
-document.getElementById('headerId').textContent = MIXTAPE.id;
-recipientTitle.textContent = `Para ${MIXTAPE.recipient}`;
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(32,host.clientWidth/host.clientHeight,.01,1000);
+camera.position.set(0,0,150);
 
-const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.12;
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-sceneEl.appendChild(renderer.domElement);
 
-const scene = new THREE.Scene();
-scene.background = null;
+scene.add(new THREE.AmbientLight(0x8f8a84,1.2));
+const key=new THREE.DirectionalLight(0xece4d4,2.25);key.position.set(55,80,110);scene.add(key);
+const fill=new THREE.DirectionalLight(0xa58f7f,1.15);fill.position.set(-90,15,55);scene.add(fill);
+const rim=new THREE.DirectionalLight(0xdd8e5c,1.1);rim.position.set(70,-55,-90);scene.add(rim);
 
-const camera = new THREE.PerspectiveCamera(29, 1, .1, 1000);
+const root=new THREE.Group();
+scene.add(root);
+let model=null;let baseRotation=new THREE.Euler(0,0,0);let targetRotation=new THREE.Euler(0,0,0);
 
-const pmrem = new THREE.PMREMGenerator(renderer);
-const envScene = new RoomEnvironment(renderer);
-const envTex = pmrem.fromScene(envScene, .04).texture;
-scene.environment = envTex;
-envScene.dispose();
-pmrem.dispose();
+function resize(){
+ const w=host.clientWidth,h=host.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);
+}
+window.addEventListener('resize',resize,{passive:true});
 
-const key = new THREE.DirectionalLight(0xfff4e4, 3.0);
-key.position.set(-45, 72, 110);
-key.castShadow = true;
-key.shadow.mapSize.set(1024,1024);
-scene.add(key);
-
-const fill = new THREE.DirectionalLight(0xd9bda5, 1.05);
-fill.position.set(65, 35, 75);
-scene.add(fill);
-
-const rim = new THREE.PointLight(0xdd8e5c, 1.1, 180);
-rim.position.set(-65, 5, -30);
-scene.add(rim);
-
-const topFill = new THREE.HemisphereLight(0xeee6d6, 0x07070a, .55);
-scene.add(topFill);
-
-const cassetteRoot = new THREE.Group();
-scene.add(cassetteRoot);
-
-let model = null;
-let modelCenter = new THREE.Vector3();
-let labelA = null;
-let labelB = null;
-let frontZ = 6.34;
-let backZ = -6.34;
-let currentSide = 'A';
-let targetRot = 0;
-let pointerX = 0;
-let pointerY = 0;
-let loaded = false;
-
-function makeLabelTexture(side, recipient){
-  const w = 1400, h = 720;
-  const canvas = document.createElement('canvas');
-  canvas.width = w; canvas.height = h;
-  const ctx = canvas.getContext('2d');
-
-  ctx.clearRect(0,0,w,h);
-  ctx.fillStyle = '#e8deca';
-  ctx.fillRect(0,0,w,h);
-
-  const g = ctx.createLinearGradient(0,0,w,h);
-  g.addColorStop(0,'rgba(255,255,255,.15)');
-  g.addColorStop(.5,'rgba(255,255,255,0)');
-  g.addColorStop(1,'rgba(90,69,45,.08)');
-  ctx.fillStyle = g;
-  ctx.fillRect(0,0,w,h);
-
-  ctx.strokeStyle = 'rgba(52,43,33,.35)';
-  ctx.lineWidth = 3;
-  ctx.strokeRect(22,22,w-44,h-44);
-
-  // Subtle paper grain.
-  for(let i=0;i<9000;i++){
-    const x=Math.random()*w, y=Math.random()*h;
-    const a=.015+Math.random()*.03;
-    ctx.fillStyle=`rgba(50,38,25,${a})`;
-    ctx.fillRect(x,y,1,1);
-  }
-
-  ctx.fillStyle='#28231d';
-  ctx.textAlign='center';
-  ctx.font='600 34px "DM Mono"';
-  ctx.letterSpacing='4px';
-  ctx.fillText(`ETÉREO  ·  SIDE ${side}`, w/2, 92);
-
-  ctx.strokeStyle='rgba(221,142,92,.65)';
-  ctx.lineWidth=2;
-  ctx.beginPath(); ctx.moveTo(390,118); ctx.lineTo(1010,118); ctx.stroke();
-
-  ctx.fillStyle='#332b24';
-  ctx.font='italic 76px "Playfair Display"';
-  ctx.fillText(side==='A' ? `Para ${recipient}` : 'Lado B', w/2, 215);
-
-  ctx.fillStyle='rgba(51,43,36,.65)';
-  ctx.font='500 23px "DM Mono"';
-  ctx.fillText(side==='A' ? 'UNA SELECCIÓN PARA GUARDAR' : 'CONTINÚA LA CINTA', w/2, 285);
-
-  // Reel apertures: transparent circular cutouts.
-  ctx.globalCompositeOperation='destination-out';
-  const holes=[
-    {x:460,y:385,r:95},
-    {x:940,y:385,r:95}
-  ];
-  for(const h1 of holes){ctx.beginPath();ctx.arc(h1.x,h1.y,h1.r,0,Math.PI*2);ctx.fill()}
-  ctx.globalCompositeOperation='source-over';
-
-  ctx.fillStyle='rgba(51,43,36,.5)';
-  ctx.font='500 20px "DM Mono"';
-  ctx.fillText('ET—MX—00127', w/2, 650);
-
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
-  tex.needsUpdate = true;
-  return tex;
+function applyMaterial(obj){
+ obj.traverse(n=>{
+   if(!n.isMesh)return;
+   n.castShadow=true;n.receiveShadow=true;
+   const mat=n.material;
+   if(mat && mat.isMeshStandardMaterial){
+     mat.color.set('#1d1a1c');
+     mat.roughness=.72;
+     mat.metalness=.04;
+   } else {
+     n.material=new THREE.MeshStandardMaterial({color:'#1d1a1c',roughness:.72,metalness:.04});
+   }
+ });
 }
 
-function makeLabel(side, z, facing){
-  // Physical label proportions chosen for the 104 × 63.5 mm cassette body.
-  const geo = new THREE.PlaneGeometry(82, 45.5, 1, 1);
-  const tex = makeLabelTexture(side, MIXTAPE.recipient);
-  const mat = new THREE.MeshPhysicalMaterial({
-    map: tex,
-    transparent: true,
-    alphaTest: .02,
-    roughness: .82,
-    metalness: 0,
-    clearcoat: .05,
-    side: THREE.DoubleSide
-  });
-  const mesh = new THREE.Mesh(geo, mat);
-  mesh.position.set(0,0,z);
-  if(facing==='back') mesh.rotation.y = Math.PI;
-  mesh.renderOrder = 5;
-  return mesh;
-}
-
-function applyPlaMaterial(root){
-  root.traverse(obj=>{
-    if(!obj.isMesh) return;
-    obj.castShadow = true;
-    obj.receiveShadow = true;
-    obj.material = new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color('#1b1918'),
-      roughness: .67,
-      metalness: .02,
-      clearcoat: .12,
-      clearcoatRoughness: .52
-    });
-  });
-}
-
-function fitCamera(){
-  if(!model) return;
-  const box = new THREE.Box3().setFromObject(cassetteRoot);
-  const size = box.getSize(new THREE.Vector3());
-  const maxDim = Math.max(size.x,size.y);
-  const fov = THREE.MathUtils.degToRad(camera.fov);
-  const dist = (maxDim * .58) / Math.tan(fov/2);
-  camera.position.set(0,0,dist);
-  camera.near=.1; camera.far=2000; camera.lookAt(0,0,0);
-  camera.updateProjectionMatrix();
-}
-
-function loadModel(){
-  const loader = new GLTFLoader();
-  loader.load('./assets/cassette_assembled.glb', gltf=>{
-    model = gltf.scene;
-    applyPlaMaterial(model);
-
-    // The corrected v3 GLB is 104 × 63.5 × 12.6 mm, centered here for presentation.
-    model.position.set(-52,-31.75,-6.3);
-    model.rotation.set(0,0,0);
-    cassetteRoot.add(model);
-
-    labelA = makeLabel('A', 6.38, 'front');
-    labelB = makeLabel('B', -6.38, 'back');
-    cassetteRoot.add(labelA, labelB);
-
-    fitCamera();
-    loaded=true;
-    loading.classList.add('hidden');
-  }, xhr=>{
-    if(xhr.total) loading.textContent = `Cargando pieza · ${Math.round(xhr.loaded/xhr.total*100)}%`;
-  }, err=>{
-    console.error(err);
-    loading.textContent='No se pudo cargar la pieza';
-  });
+function frameModel(obj){
+ const box=new THREE.Box3().setFromObject(obj);
+ const size=box.getSize(new THREE.Vector3());
+ const center=box.getCenter(new THREE.Vector3());
+ obj.position.sub(center);
+ // Scale so the longest dimension is around 92 scene units.
+ const maxDim=Math.max(size.x,size.y,size.z);
+ const s=92/maxDim;obj.scale.setScalar(s);
+ // Keep the broad face toward the viewer. GLB source is XY plane with Z thickness.
+ obj.rotation.set(0,0,0);
+ camera.position.set(0,0,150);
+ camera.lookAt(0,0,0);camera.lookAt(0,0,0);
 }
 
 function setSide(side){
-  currentSide=side;
-  targetRot=side==='A' ? 0 : Math.PI;
-  sideButtons.forEach(b=>b.classList.toggle('active',b.dataset.side===side));
-  statusEl.textContent=`SIDE ${side}`;
-  document.getElementById('sectionTitle').textContent = side==='A' ? 'Una selección para guardar.' : 'La otra mitad de la historia.';
+ sideA.classList.toggle('active',side==='A');sideB.classList.toggle('active',side==='B');
+ // For now the assembled physical model stays fixed. The Side label is a future texture layer.
+ status.textContent=side==='A'?'SIDE A · lista':'SIDE B · lista';
 }
-sideButtons.forEach(b=>b.addEventListener('click',()=>setSide(b.dataset.side)));
+sideA.onclick=()=>setSide('A'); sideB.onclick=()=>setSide('B');
 
+new GLTFLoader().load('./assets/cassette_assembled.glb',gltf=>{
+ model=gltf.scene;
+ root.add(model);
+ applyMaterial(model);
+ frameModel(model);
+ status.textContent='SIDE A · pieza ETÉREO · SIDE A';
+},xhr=>{
+ if(xhr.total)status.textContent=`Cargando objeto · ${Math.round(xhr.loaded/xhr.total*100)}%`;
+},err=>{
+ console.error(err);
+ status.textContent='No se pudo cargar el objeto 3D';
+});
+
+let px=0,py=0;
 window.addEventListener('pointermove',e=>{
-  pointerX = (e.clientX/innerWidth-.5);
-  pointerY = (e.clientY/innerHeight-.5);
+ px=(e.clientX/innerWidth-.5);py=(e.clientY/innerHeight-.5);
 });
 
-window.addEventListener('resize',()=>{
-  renderer.setSize(sceneEl.clientWidth,sceneEl.clientHeight,false);
-  camera.aspect=sceneEl.clientWidth/sceneEl.clientHeight;
-  camera.updateProjectionMatrix();
-  fitCamera();
-});
-
-renderer.setSize(sceneEl.clientWidth,sceneEl.clientHeight,false);
-fitCamera();
-loadModel();
-
-const clock = new THREE.Clock();
-function animate(){
-  requestAnimationFrame(animate);
-  const dt=Math.min(clock.getDelta(),.05);
-  if(loaded){
-    // Hover: very subtle; click/side switch controls the 180° flip.
-    const hoverX = -pointerY*.06;
-    const hoverY = pointerX*.10;
-    cassetteRoot.rotation.x += (hoverX-cassetteRoot.rotation.x)*Math.min(1,dt*5);
-    const desiredY = targetRot + hoverY;
-    let delta = desiredY-cassetteRoot.rotation.y;
-    while(delta>Math.PI)delta-=Math.PI*2;
-    while(delta<-Math.PI)delta+=Math.PI*2;
-    cassetteRoot.rotation.y += delta*Math.min(1,dt*4.5);
-  }
-  renderer.render(scene,camera);
+function tick(){
+ requestAnimationFrame(tick);
+  if(model){
+   // Golden baseline: the verified GLB orientation is never altered.
+ }
+ renderer.render(scene,camera);
 }
-animate();
+tick();
 </script>
 </body>
 </html>
