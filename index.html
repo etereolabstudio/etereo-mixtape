@@ -1,163 +1,153 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0c0b0f">
 <title>Etéreo — Mixtape</title>
-<meta name="theme-color" content="#0b0a0d" />
 <style>
-:root{--bg:#0b0a0d;--paper:#e9dfcf;--paper2:#d7c8b2;--ink:#1c1917;--cream:#eee6d7;--muted:#968e86;--accent:#dd8e5c;--line:rgba(238,230,215,.11);--mono:"DM Mono",monospace;--serif:"Playfair Display",serif;--sans:"Outfit",sans-serif}
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:radial-gradient(circle at 50% 26%,rgba(221,142,92,.06),transparent 32%),var(--bg);color:var(--cream);font-family:var(--sans);overflow-x:hidden}body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.045;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.75'/%3E%3C/svg%3E")}
-canvas{display:block}.mono{font-family:var(--mono)}
-header{position:fixed;top:0;left:0;right:0;height:64px;display:flex;justify-content:space-between;align-items:center;padding:0 24px;z-index:20;background:linear-gradient(to bottom,rgba(11,10,13,.92),transparent)}
-.brand{font-family:var(--serif);font-size:18px}.id{font:8px var(--mono);letter-spacing:.18em;color:var(--muted)}
-main{min-height:100vh}.hero{min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:78px 18px 60px;text-align:center}
-.kicker{font:8px var(--mono);letter-spacing:.23em;text-transform:uppercase;color:var(--muted);margin-bottom:18px}.title{font:400 clamp(46px,8vw,80px)/.95 var(--serif);letter-spacing:-.035em;margin:0;color:var(--cream)}.copy{max-width:470px;margin:18px auto 0;font-size:13px;line-height:1.7;color:var(--muted)}
-.stage{width:min(820px,96vw);height:min(58vh,520px);min-height:330px;position:relative;margin-top:24px}.canvas-wrap{position:absolute;inset:0}.loader{position:absolute;inset:0;display:grid;place-items:center;font:8px var(--mono);letter-spacing:.18em;color:var(--muted);pointer-events:none;text-transform:uppercase}.canvas-wrap.loaded+.loader{display:none}
-.hint{margin-top:8px;font:8px var(--mono);letter-spacing:.14em;color:#6f6862;text-transform:uppercase}.controls{display:flex;gap:10px;margin-top:16px;justify-content:center}.btn{appearance:none;border:1px solid var(--line);background:transparent;color:var(--cream);padding:12px 15px;min-width:94px;font:9px var(--mono);letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:.2s}.btn:hover{border-color:rgba(221,142,92,.5);color:var(--accent)}.btn.active{border-color:rgba(221,142,92,.65);background:rgba(221,142,92,.08)}
-.panel{width:min(640px,calc(100% - 34px));margin:0 auto 90px;border-top:1px solid var(--line);padding:48px 0}.panel-label{font:8px var(--mono);letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:14px}.panel h2{font:400 34px/1.05 var(--serif);margin:0}.panel p{color:var(--muted);font-size:12px;line-height:1.7;max-width:500px}.voice{margin-top:24px;padding:15px 0;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:13px}.voice button{width:42px;height:42px;border:1px solid var(--line);background:transparent;color:var(--cream);border-radius:50%;cursor:pointer}.voice .bar{height:1px;flex:1;background:linear-gradient(90deg,var(--accent) 0 22%,var(--line) 22%)}
-.tracks{margin-top:28px}.track{display:grid;grid-template-columns:35px 1fr auto;gap:12px;align-items:center;padding:16px 0;border-bottom:1px solid var(--line)}.track-no{font:9px var(--mono);color:#625c56}.track-title{font-size:14px}.track-artist{font:8px var(--mono);color:var(--muted);margin-top:4px}.track-note{font:12px var(--serif);font-style:italic;color:var(--accent);margin-top:6px}.track-time{font:8px var(--mono);color:var(--muted)}
-@media(max-width:560px){.stage{height:44vh;min-height:280px}.title{font-size:48px}.copy{font-size:12px}.track-time{display:none}}
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap');
+:root{--bg:#0c0b0f;--text:#ede6d6;--muted:#9b9488;--accent:#dd8e5c;--line:rgba(237,230,214,.12)}
+*{box-sizing:border-box} html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text)}
+body{font-family:Outfit,sans-serif;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:20;opacity:.055;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E")}
+header{position:fixed;top:0;left:0;right:0;padding:24px 28px;display:flex;justify-content:space-between;align-items:center;z-index:30;pointer-events:none}
+.brand{font-family:'Playfair Display',serif;font-size:18px;letter-spacing:-.02em}.brand small{font-family:'DM Mono',monospace;color:var(--muted);font-size:8px;letter-spacing:.18em;text-transform:uppercase;margin-left:8px}
+.id{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:.16em}
+main{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:74px 18px 50px}
+.eyebrow{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);text-align:center;margin-bottom:14px}
+h1{font-family:'Playfair Display',serif;font-size:clamp(38px,7vw,68px);font-weight:400;letter-spacing:-.03em;line-height:.98;text-align:center;margin:0}
+.sub{max-width:460px;text-align:center;color:var(--muted);font-size:13px;line-height:1.65;margin:18px auto 0;font-weight:300}
+.stage{position:relative;width:min(94vw,820px);height:min(64vw,560px);min-height:340px;margin-top:34px;display:flex;align-items:center;justify-content:center}
+.stage:after{content:"";position:absolute;width:55%;height:10%;bottom:12%;left:22.5%;background:rgba(0,0,0,.65);filter:blur(28px);border-radius:50%;pointer-events:none}
+#scene{position:absolute;inset:0}
+.hint{position:absolute;left:0;right:0;bottom:2px;text-align:center;font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.controls{display:flex;gap:8px;margin-top:18px;z-index:10}
+button{appearance:none;border:1px solid var(--line);background:transparent;color:var(--text);padding:11px 15px;font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.13em;text-transform:uppercase;cursor:pointer;transition:.22s}
+button:hover{border-color:rgba(221,142,92,.55);color:var(--accent);background:rgba(221,142,92,.06)}
+button.active{border-color:rgba(221,142,92,.65);background:rgba(221,142,92,.09);color:var(--accent)}
+.status{margin-top:12px;font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:.12em;min-height:14px;text-align:center}
+footer{margin-top:30px;color:rgba(155,148,136,.55);font-family:'DM Mono',monospace;font-size:7px;letter-spacing:.18em;text-transform:uppercase;text-align:center}
+@media(max-width:560px){header{padding:18px 16px}.brand{font-size:16px}.brand small{display:none}.stage{height:74vw;min-height:300px;margin-top:22px}.sub{font-size:12px;max-width:330px}.controls{margin-top:10px}}
 </style>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.164.1/build/three.module.js","three/addons/":"https://unpkg.com/three@0.164.1/examples/jsm/"}}</script>
 </head>
 <body>
-<header><div class="brand">Etéreo</div><div class="id">ET—MX—00127</div></header>
+<header><div class="brand">Etéreo <small>Mixtape</small></div><div class="id">ET—MX—00127</div></header>
 <main>
-<section class="hero">
-  <div class="kicker">Una cápsula para escuchar</div>
-  <h1 class="title">Para Sofía</h1>
-  <p class="copy">Una selección de canciones y una voz, guardadas en una cinta pensada solamente para ti.</p>
-  <div class="stage">
-    <div id="canvasWrap" class="canvas-wrap"></div>
-    <div id="loader" class="loader">Cargando cassette</div>
-  </div>
-  <div class="hint">Mueve el cursor · toca el cassette</div>
-  <div class="controls"><button class="btn active" id="sideA">Side A</button><button class="btn" id="sideB">Side B</button></div>
-</section>
-<section class="panel">
-  <div class="panel-label">Antes de escuchar</div>
-  <h2>Tengo algo que decirte primero.</h2>
-  <p>La nota de voz irá aquí. En la versión conectada, el audio se cargará desde la Mixtape correspondiente.</p>
-  <div class="voice"><button id="voiceBtn">▶</button><div class="bar"></div><span class="mono" style="font-size:8px;color:var(--muted)">00:15</span></div>
-  <div class="tracks" id="tracks"></div>
-</section>
+  <div class="eyebrow">Una cápsula para escuchar</div>
+  <h1>Para Sofía</h1>
+  <p class="sub">Una selección de canciones y una voz, guardadas en una cinta pensada solamente para ti.</p>
+  <div class="stage"><div id="scene"></div><div class="hint">Mueve el cursor · toca el cassette</div></div>
+  <div class="controls"><button class="active" id="sideA">Side A</button><button id="sideB">Side B</button></div>
+  <div class="status" id="status">Cargando objeto…</div>
+  <footer>Etéreo Lab Studio · una cápsula del tiempo</footer>
 </main>
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
-  }
-}
-</script>
 <script type="module">
 import * as THREE from 'three';
-import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-const stage=document.querySelector('.stage');
-const wrap=document.getElementById('canvasWrap');
-const loaderEl=document.getElementById('loader');
-const scene=new THREE.Scene();
-const camera=new THREE.PerspectiveCamera(27,1,0.1,1000);
-const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});
+const host=document.getElementById('scene');
+const status=document.getElementById('status');
+const sideA=document.getElementById('sideA');
+const sideB=document.getElementById('sideB');
+
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(host.clientWidth,host.clientHeight);
 renderer.outputColorSpace=THREE.SRGBColorSpace;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure=1.06;
-wrap.appendChild(renderer.domElement);
+renderer.toneMappingExposure=1.15;
+host.appendChild(renderer.domElement);
 
-scene.background=null;
-const hemi=new THREE.HemisphereLight(0xf7f1e6,0x120f0d,2.15);scene.add(hemi);
-const key=new THREE.DirectionalLight(0xffead0,3.1);key.position.set(2,3,7);scene.add(key);
-const fill=new THREE.DirectionalLight(0xb9c5d9,1.1);fill.position.set(-4,1,3);scene.add(fill);
-const rim=new THREE.DirectionalLight(0xdd8e5c,.75);rim.position.set(2,-4,2);scene.add(rim);
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(32,host.clientWidth/host.clientHeight,.01,1000);
+camera.position.set(0,0,150);
 
-const group=new THREE.Group();scene.add(group);
-let body=null;
-let side='A';
-let reels=[];
+const controls=new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;controls.dampingFactor=.08;controls.enablePan=false;controls.minDistance=85;controls.maxDistance=230;controls.minPolarAngle=Math.PI*.30;controls.maxPolarAngle=Math.PI*.70;controls.target.set(0,0,0);
 
-function centerMesh(mesh){
-  const box=new THREE.Box3().setFromObject(mesh);const c=box.getCenter(new THREE.Vector3());mesh.position.sub(c);}
-function makeLabelTexture(sideLetter){
-  const c=document.createElement('canvas');c.width=1400;c.height=720;const x=c.getContext('2d');
-  x.clearRect(0,0,c.width,c.height);
-  x.fillStyle='#e9dfcf';x.fillRect(0,0,c.width,c.height);
-  x.strokeStyle='rgba(28,25,23,.22)';x.lineWidth=4;x.strokeRect(22,22,c.width-44,c.height-44);
-  x.fillStyle='#27231f';x.textAlign='center';x.textBaseline='middle';
-  x.font='700 58px Arial';x.letterSpacing='8px';x.fillText(`ETÉREO · SIDE ${sideLetter}`,c.width/2,128);
-  x.font='italic 82px Georgia';x.fillText('Para Sofía',c.width/2,300);
-  x.font='500 30px Arial';x.globalAlpha=.65;x.fillText('UNA SELECCIÓN PARA GUARDAR',c.width/2,580);x.globalAlpha=1;
-  // cutouts for spool windows
-  const holes=[{x:470,y:382,r:84},{x:930,y:382,r:84},{x:700,y:382,r:38}];
-  x.globalCompositeOperation='destination-out';for(const h of holes){x.beginPath();x.arc(h.x,h.y,h.r,0,Math.PI*2);x.fill()}x.globalCompositeOperation='source-over';
-  return new THREE.CanvasTexture(c);
+scene.add(new THREE.AmbientLight(0x8f8a84,1.2));
+const key=new THREE.DirectionalLight(0xece4d4,2.25);key.position.set(55,80,110);scene.add(key);
+const fill=new THREE.DirectionalLight(0xa58f7f,1.15);fill.position.set(-90,15,55);scene.add(fill);
+const rim=new THREE.DirectionalLight(0xdd8e5c,1.1);rim.position.set(70,-55,-90);scene.add(rim);
+
+const root=new THREE.Group();
+scene.add(root);
+let model=null;let baseRotation=new THREE.Euler(0,0,0);let targetRotation=new THREE.Euler(0,0,0);
+
+function resize(){
+ const w=host.clientWidth,h=host.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);
 }
-function addLabel(mesh){
-  const box=new THREE.Box3().setFromObject(mesh);const size=box.getSize(new THREE.Vector3());
-  const labelW=Math.min(size.x*.88,92); const labelH=Math.min(size.y*.73,46);
-  const geo=new THREE.PlaneGeometry(labelW,labelH);
-  const mat=new THREE.MeshBasicMaterial({map:makeLabelTexture(side),transparent:true,side:THREE.DoubleSide,depthWrite:false});
-  const p=new THREE.Mesh(geo,mat);
-  const cy=box.getCenter(new THREE.Vector3());
-  // front face = +Z on the normalized STL
-  p.position.set(cy.x,cy.y,box.max.z+0.09);
-  group.add(p);return p;
-}
-function addReels(mesh){
-  const box=new THREE.Box3().setFromObject(mesh);const s=box.getSize(new THREE.Vector3());const cy=box.getCenter(new THREE.Vector3());
-  const rx=s.x*.235, ry=cy.y+s.y*.015, r=Math.min(s.x,s.y)*.095;
-  [-1,1].forEach(sign=>{
-    const g=new THREE.Group();
-    const outer=new THREE.Mesh(new THREE.CylinderGeometry(r,r,0.5,48),new THREE.MeshStandardMaterial({color:0x433e3b,roughness:.34,metalness:.18}));
-    outer.rotation.x=Math.PI/2;
-    const inner=new THREE.Mesh(new THREE.CylinderGeometry(r*.52,r*.52,.56,48),new THREE.MeshStandardMaterial({color:0x141214,roughness:.55,metalness:.05}));
-    inner.rotation.x=Math.PI/2;
-    g.add(outer,inner);g.position.set(cy.x+sign*rx,ry,box.max.z+0.15);group.add(g);reels.push(g);
-  });
+window.addEventListener('resize',resize,{passive:true});
+
+function applyMaterial(obj){
+ obj.traverse(n=>{
+   if(!n.isMesh)return;
+   n.castShadow=true;n.receiveShadow=true;
+   const mat=n.material;
+   if(mat && mat.isMeshStandardMaterial){
+     mat.color.set('#1d1a1c');
+     mat.roughness=.72;
+     mat.metalness=.04;
+   } else {
+     n.material=new THREE.MeshStandardMaterial({color:'#1d1a1c',roughness:.72,metalness:.04});
+   }
+ });
 }
 
-const loader=new STLLoader();
-loader.load('./assets/cassette.stl',(geom)=>{
-  geom.computeVertexNormals();
-  // Keep the first printable half only; the STL is laid out as two separated copies.
-  const pos=geom.attributes.position;const arr=[];let minY=Infinity,maxY=-Infinity;
-  for(let i=0;i<pos.count;i++){const y=pos.getY(i);minY=Math.min(minY,y);maxY=Math.max(maxY,y)}
-  const mid=(minY+maxY)/2; const triCount=pos.count/3;
-  for(let t=0;t<triCount;t++){
-    const ys=[pos.getY(t*3),pos.getY(t*3+1),pos.getY(t*3+2)];
-    if(ys.every(y=>y>mid)){
-      for(let k=0;k<3;k++){
-        arr.push(pos.getX(t*3+k),pos.getY(t*3+k),pos.getZ(t*3+k));
-      }
-    }
-  }
-  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(arr,3));g.computeVertexNormals();
-  const material=new THREE.MeshStandardMaterial({color:0x1d1a1d,roughness:.42,metalness:.08});
-  body=new THREE.Mesh(g,material);centerMesh(body);group.add(body);
-  group.rotation.x=-0.16; group.rotation.y=0.10;
-  addLabel(body);addReels(body);
-  loaderEl.style.display='none';
-  resize();
-},undefined,(err)=>{loaderEl.textContent='No se pudo cargar el cassette';console.error(err)});
+function frameModel(obj){
+ const box=new THREE.Box3().setFromObject(obj);
+ const size=box.getSize(new THREE.Vector3());
+ const center=box.getCenter(new THREE.Vector3());
+ obj.position.sub(center);
+ // Scale so the longest dimension is around 92 scene units.
+ const maxDim=Math.max(size.x,size.y,size.z);
+ const s=92/maxDim;obj.scale.setScalar(s);
+ // Keep the broad face toward the viewer. GLB source is XY plane with Z thickness.
+ obj.rotation.set(0,0,0);
+ camera.position.set(0,0,150);
+ camera.lookAt(0,0,0);controls.target.set(0,0,0);controls.update();
+}
 
-const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.enablePan=false;controls.minDistance=140;controls.maxDistance=260;controls.minPolarAngle=1.25;controls.maxPolarAngle=1.9;controls.target.set(0,0,0);controls.enableZoom=false;
+function setSide(side){
+ sideA.classList.toggle('active',side==='A');sideB.classList.toggle('active',side==='B');
+ // For now the assembled physical model stays fixed. The Side label is a future texture layer.
+ status.textContent=side==='A'?'SIDE A · lista':'SIDE B · lista';
+}
+sideA.onclick=()=>setSide('A'); sideB.onclick=()=>setSide('B');
 
-function resize(){const r=wrap.getBoundingClientRect();renderer.setSize(r.width,r.height,false);camera.aspect=r.width/r.height;camera.updateProjectionMatrix();}
-new ResizeObserver(resize).observe(wrap);resize();
-camera.position.set(0,8,195);
+new GLTFLoader().load('./assets/cassette_assembled.glb',gltf=>{
+ model=gltf.scene;
+ root.add(model);
+ applyMaterial(model);
+ frameModel(model);
+ status.textContent='SIDE A · mueve el cursor para explorar';
+},xhr=>{
+ if(xhr.total)status.textContent=`Cargando objeto · ${Math.round(xhr.loaded/xhr.total*100)}%`;
+},err=>{
+ console.error(err);
+ status.textContent='No se pudo cargar el objeto 3D';
+});
 
-let active=false;document.getElementById('sideA').onclick=()=>setSide('A');document.getElementById('sideB').onclick=()=>setSide('B');
-function setSide(s){side=s;document.getElementById('sideA').classList.toggle('active',s==='A');document.getElementById('sideB').classList.toggle('active',s==='B');group.rotation.z=s==='B'?Math.PI:0;}
-renderer.domElement.addEventListener('click',()=>{active=!active});
-function animate(){requestAnimationFrame(animate);if(active)group.rotation.y+=0.0025;reels.forEach((r,i)=>r.rotation.z+=(active?(i%2?-.055:.055):.006));controls.update();renderer.render(scene,camera)}animate();
+let px=0,py=0;
+window.addEventListener('pointermove',e=>{
+ px=(e.clientX/innerWidth-.5);py=(e.clientY/innerHeight-.5);
+});
 
-const tracks={A:[['01','Mystery of Love','Sufjan Stevens','04:08','La primera que pensé para esta cinta.'],['02','Sweet Disposition','The Temper Trap','03:54',''],['03','Apocalypse','Cigarettes After Sex','04:50','']],B:[['01','Nothing’s Gonna Hurt You Baby','Cigarettes After Sex','04:46',''],['02','Space Song','Beach House','05:20',''],['03','Young','Vacations','03:25','Para cerrar la cinta.']]};
-function renderTracks(){const el=document.getElementById('tracks');el.innerHTML='';tracks[side].forEach(t=>{const d=document.createElement('div');d.className='track';d.innerHTML=`<div class="track-no">${t[0]}</div><div><div class="track-title">${t[1]}</div><div class="track-artist">${t[2]}</div>${t[4]?`<div class="track-note">${t[4]}</div>`:''}</div><div class="track-time">${t[3]}</div>`;el.appendChild(d)})}
-renderTracks();
-
-document.getElementById('voiceBtn').onclick=()=>alert('Aquí reproduciremos la nota de voz de 15 segundos.');
+function tick(){
+ requestAnimationFrame(tick);
+ controls.update();
+ if(model){
+   const wantedX=-py*.08;
+   const wantedY=px*.14;
+   model.rotation.x+=(wantedX-model.rotation.x)*.04;
+   model.rotation.y+=(wantedY-model.rotation.y)*.04;
+ }
+ renderer.render(scene,camera);
+}
+tick();
 </script>
 </body>
 </html>
