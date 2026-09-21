@@ -4,9 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0c0b0f">
-<title>Etéreo — Mixtape</title>
+<title>ETÉREO — Mixtape</title>
 
 <style>
+@import url('https://api.fontshare.com/v2/css?f[]=clash-display@600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap');
 
 :root{
@@ -57,9 +58,10 @@ header{
   pointer-events:none;
 }
 .brand{
-  font-family:'Playfair Display',serif;
-  font-size:18px;
-  letter-spacing:-.02em;
+  font-family:'Clash Display',sans-serif;
+  font-weight:600;
+  font-size:17px;
+  letter-spacing:-.015em;
 }
 .brand small{
   font-family:'DM Mono',monospace;
@@ -138,6 +140,34 @@ main{
   line-height:1.7;
 }
 
+.hero-facts{
+  margin:18px auto 0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  font-family:'DM Mono',monospace;
+  font-size:7px;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+  color:rgba(155,148,136,.82);
+}
+.hero-facts i{
+  width:3px;
+  height:3px;
+  border-radius:50%;
+  background:rgba(221,142,92,.65);
+}
+.edition-mark{
+  margin-top:11px;
+  font-family:'DM Mono',monospace;
+  font-size:7px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:rgba(237,230,214,.28);
+}
+
 .stage{
   position:relative;
   width:min(94vw,860px);
@@ -173,7 +203,7 @@ main{
   inset:0;
   pointer-events:none;
   z-index:3;
-  border:1px solid rgba(237,230,214,.055);
+  border:1px solid rgba(237,230,214,.04);
   opacity:.7;
 }
 
@@ -385,6 +415,26 @@ body.opened #listen{
   transition:width .08s linear;
 }
 
+.listen-reassurance{
+  margin-top:18px;
+  color:rgba(155,148,136,.58);
+  font-size:10px;
+  line-height:1.6;
+  max-width:520px;
+}
+
+.experience-note{
+  margin-top:20px;
+  padding-top:18px;
+  border-top:1px solid rgba(237,230,214,.07);
+  color:rgba(237,230,214,.42);
+  font-family:'Playfair Display',serif;
+  font-style:italic;
+  font-size:12px;
+  line-height:1.6;
+  max-width:520px;
+}
+
 .unlock{
   display:none;
   margin-top:20px;
@@ -447,6 +497,14 @@ body.music-open #tracks{
   font-weight:400;
   font-size:clamp(34px,6vw,48px);
 }
+.track-subcopy{
+  margin-top:9px;
+  max-width:390px;
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.6;
+}
+
 .track-side{
   font-family:'DM Mono',monospace;
   font-size:8px;
@@ -513,9 +571,33 @@ body.music-open #tracks{
   color:var(--accent);
   background:rgba(221,142,92,.06);
 }
+.side-toggle button:hover{
+  border-color:rgba(237,230,214,.25);
+  color:var(--text);
+}
 
 /* -------- footer -------- */
 
+.physical-note{
+  width:min(720px,calc(100% - 32px));
+  margin:0 auto;
+  padding:30px 0 82px;
+  text-align:center;
+  border-top:1px solid rgba(237,230,214,.08);
+}
+.physical-note h3{
+  margin:12px 0 10px;
+  font-family:'Playfair Display',serif;
+  font-size:24px;
+  font-weight:400;
+}
+.physical-note p{
+  max-width:520px;
+  margin:0 auto;
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.7;
+}
 footer{
   padding:0 20px 38px;
   text-align:center;
@@ -534,6 +616,8 @@ footer{
   .brand small{display:none}
   .id{font-size:7px}
   #hero{padding:84px 12px 38px}
+  .hero-facts{gap:7px;font-size:6.5px}
+  .edition-mark{font-size:6.5px}
   .stage{width:100%;height:74vw;min-height:300px}
   .hint{font-size:7px}
   .start-button{width:min(280px,86vw)}
@@ -557,7 +641,7 @@ footer{
 <body>
 
 <header>
-  <div class="brand">Etéreo <small>Mixtape</small></div>
+  <div class="brand">ETÉREO <small>Mixtape</small></div>
   <div class="id">ET—MX—00127</div>
 </header>
 
@@ -573,6 +657,20 @@ footer{
         Una selección de canciones y una voz, guardadas en una cinta
         pensada solamente para ti.
       </p>
+
+      <div class="hero-facts">
+        <span>6 canciones</span>
+        <i></i>
+        <span>1 nota de voz</span>
+        <i></i>
+        <span>NFC + QR</span>
+        <i></i>
+        <span>1 pieza física</span>
+      </div>
+
+      <div class="edition-mark">
+        EDICIÓN ETÉREO · 00127
+      </div>
     </div>
 
     <div class="stage" id="stage">
@@ -582,8 +680,8 @@ footer{
     </div>
 
     <div class="start-wrap">
-      <button class="start-button" id="startButton">Abrir esta cinta →</button>
-      <div class="start-note">La etiqueta personalizada llegará con la edición física.</div>
+      <button class="start-button" id="startButton">Abrir la Mixtape →</button>
+      <div class="start-note">Gira la cinta · cuando estés listo, comienza a escuchar</div>
     </div>
 
   </div>
@@ -634,6 +732,14 @@ footer{
 
     </div>
 
+    <div class="listen-reassurance">
+      La música se abre en tu plataforma favorita. ETÉREO guarda la experiencia, no la reemplaza.
+    </div>
+
+    <div class="experience-note">
+      Hecha para ser escuchada con calma. No es una playlist: es una dedicatoria en forma de cinta.
+    </div>
+
     <div class="unlock" id="unlock">
       <div class="unlock-text">
         Nota de voz terminada · la cinta está lista.
@@ -652,8 +758,9 @@ footer{
     <div>
       <div class="eyebrow" style="text-align:left">La selección</div>
       <h2 class="track-title" id="sideTitle">Side A</h2>
+      <div class="track-subcopy">Una mixtape física con una pequeña historia por cada canción.</div>
     </div>
-    <div class="track-side" id="sideMeta">3 canciones</div>
+    <div class="track-side" id="sideMeta">3 canciones · abre en tu música favorita</div>
   </div>
 
   <div class="track-list" id="trackList"></div>
@@ -663,6 +770,15 @@ footer{
     <button id="sideToggleB">Side B</button>
   </div>
 
+</section>
+
+<section class="physical-note">
+  <div class="eyebrow">La pieza física</div>
+  <h3>Lo que escuchas aquí también existe.</h3>
+  <p>
+    La experiencia digital acompaña una cassette física de ETÉREO.
+    La pieza está pensada para conservarse, regalarse y volver a escucharse.
+  </p>
 </section>
 
 <footer>
@@ -1016,7 +1132,7 @@ function renderSide(side){
         <div class="track-artist">${track.artist}</div>
         ${track.note ? `<div class="track-note">${track.note}</div>` : ''}
       </div>
-      <div class="track-open">↗</div>
+      <div class="track-open">ABRIR ↗</div>
     `;
 
     row.addEventListener('click',()=>{
