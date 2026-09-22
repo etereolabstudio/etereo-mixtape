@@ -1448,11 +1448,13 @@ flipButton.addEventListener('click',()=>{
   const SUPABASE_PUBLISHABLE_KEY =
     'sb_publishable_0OBtYGvR-o7oqIUBd-FJKg_XWCRVV_h';
 
-  const params = new URLSearchParams(window.location.search);
-  const publicId = (params.get('id') || '').trim();
+  // public_id remains an internal/display folio; public_token is the URL credential.
 
-  // With no ?id=..., preserve the current demo/landing behavior.
-  if (!publicId) return;
+  const params = new URLSearchParams(window.location.search);
+  const publicToken = (params.get('token') || '').trim();
+
+  // With no ?token=..., preserve the current demo/landing behavior.
+  if (!publicToken) return;
 
   const qs = selector => document.querySelector(selector);
   const qsa = selector => Array.from(document.querySelectorAll(selector));
@@ -1707,7 +1709,7 @@ flipButton.addEventListener('click',()=>{
   async function loadRemoteMixtape() {
     try {
       const response = await fetch(
-        `${MIXTAPE_API}?id=${encodeURIComponent(publicId)}`,
+        `${MIXTAPE_API}?token=${encodeURIComponent(publicToken)}`,
         {
           method: 'GET',
           headers: {
@@ -1877,7 +1879,7 @@ flipButton.addEventListener('click',()=>{
 <script>
 /* =========================================================
    ETÉREO REAL VOICE CONTROLLER — FINAL
-   One controller only for public ?id=... Mixtapes.
+   One controller only for public ?token=... Mixtapes.
    Real waveform + smooth progress + orange played region.
    ========================================================= */
 (() => {
