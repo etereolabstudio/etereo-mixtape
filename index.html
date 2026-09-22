@@ -742,8 +742,8 @@ footer{
     const artist = String(track?.artist || '').trim();
     const query = `${title} ${artist}`.trim();
     return query
-      ? `https://open.spotify.com/search/${encodeURIComponent(query)}/tracks`
-      : 'https://open.spotify.com/search/tracks';
+      ? `https://open.spotify.com/search/${encodeURIComponent(query)}`
+      : 'https://open.spotify.com/search';
   }
 
   const songs = {
@@ -1248,10 +1248,11 @@ document.getElementById('openSideA').addEventListener('click',()=>{
 function spotifySearchUrl(track){
   const title = String(track?.title || '').trim();
   const artist = String(track?.artist || '').trim();
-  const query = `${title} ${artist}`.trim();
+  const query = [title, artist].filter(Boolean).join(' ');
+
   return query
-    ? `https://open.spotify.com/search/${encodeURIComponent(query)}/tracks`
-    : 'https://open.spotify.com/search/tracks';
+    ? `https://open.spotify.com/search/${encodeURIComponent(query)}`
+    : 'https://open.spotify.com/search/';
 }
 
 const mixtapeData={
@@ -1527,15 +1528,15 @@ flipButton.addEventListener('click',()=>{
   function makeSearchLinks(track) {
     const title = String(track?.title || '').trim();
     const artist = String(track?.artist || '').trim();
-    const queryText = `${title} ${artist}`.trim();
+    const queryText = [title, artist].filter(Boolean).join(' ');
     const query = encodeURIComponent(queryText);
 
-    // La página pública NO usa URLs guardadas en Supabase.
-    // Siempre genera una búsqueda con título + artista.
+    // Spotify: búsqueda web normal con título + artista.
+    // NO usa /tracks, /track/<id>, Spotify API ni URLs guardadas.
     return {
       spotify: queryText
-        ? `https://open.spotify.com/search/${query}/tracks`
-        : 'https://open.spotify.com/search/tracks',
+        ? `https://open.spotify.com/search/${query}`
+        : 'https://open.spotify.com/search/',
       apple: queryText
         ? `https://music.apple.com/us/search?term=${query}`
         : 'https://music.apple.com/',
