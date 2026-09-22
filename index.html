@@ -1824,5 +1824,247 @@ flipButton.addEventListener('click',()=>{
 })();
 </script>
 
+
+<script>
+/* =========================================================
+   ETÉREO REAL VOICE CONTROLLER
+   Replaces the demo timer with the actual audio position and
+   builds a waveform from the real signed audio file.
+   ========================================================= */
+(() => {
+  const waitForRealAudio = setInterval(async () => {
+    const originalAudio = document.getElementById('voiceAudio');
+    const source = originalAudio?.currentSrc || originalAudio?.src || '';
+
+    if (!originalAudio || !source.includes('/storage/v1/object/sign/mixtape-audio/')) {
+      return;
+    }
+
+    clearInterval(waitForRealAudio);
+
+    const audio = originalAudio.cloneNode(true);
+    audio.id = 'voiceAudioReal';
+    audio.preload = 'metadata';
+    audio.crossOrigin = 'anonymous';
+    originalAudio.replaceWith(audio);
+
+    const oldPlay = document.getElementById('voicePlay');
+    if (!oldPlay) return;
+
+    const play = oldPlay.cloneNode(true);
+    play.id = 'voicePlayReal';
+    oldPlay.replaceWith(play);
+
+    const wave = document.getElementById('voiceWave');
+    const progress = document.getElementById('voiceProgress');
+    const time = document.getElementById('voiceTime');
+    const state = document.getElementById('voiceState');
+    const sub = document.getElementById('voiceSub');
+    const unlock = document.getElementById('unlock');
+
+    if (!wave) return;
+
+    const BAR_COUNT = 64;
+
+    function renderBars(values) {
+      wave.innerHTML = '';
+
+      const bars = [];
+
+      values.forEach(value => {
+        const bar = document.createElement('span');
+        bar.className = 'voice-bar';
+        bar.style.height = `${Math.max(12, Math.min(92, value * 100))}%`;
+        wave.appendChild(bar);
+        bars.push(bar);
+      });
+
+      return bars;
+    }
+
+    function fallbackWaveform() {
+      const values = Array.from({ length: BAR_COUNT }, (_, i) => {
+        const x = i / (BAR_COUNT - 1);
+        const envelope =
+          0.34 +
+          0.28 * Math.sin(x * Math.PI * 3.1 + 0.7) +
+          0.15 * Math.sin(x * Math.PI * 9.4 + 1.8);
+
+        return Math.max(0.12, Math.min(0.85, envelope));
+      });
+
+      return renderBars(values);
+    }
+
+    async function buildRealWaveform() {
+      try {
+        const response = await fetch(audio.currentSrc || audio.src, {
+          cache: 'no-store'
+        });
+
+        if (!response.ok) throw new Error('No se pudo descargar el audio.');
+
+        const buffer = await response.arrayBuffer();
+        const AudioContextCtor =
+          window.AudioContext || window.webkitAudioContext;
+
+        if (!AudioContextCtor) throw new Error('Web Audio no disponible.');
+
+        const ctx = new AudioContextCtor();
+        const audioBuffer = await ctx.decodeAudioData(buffer.slice(0));
+
+        const channel = audioBuffer.getChannelData(0);
+        const values = [];
+
+        for (let i = 0; i < BAR_COUNT; i += 1) {
+          const start = Math.floor((i / BAR_COUNT) * channel.length);
+          const end = Math.max(
+            start + 1,
+            Math.floor(((i + 1) / BAR_COUNT) * channel.length)
+          );
+
+          let sum = 0;
+
+          for (let j = start; j < end; j += 1) {
+            const sample = channel[j] || 0;
+            sum += sample * sample;
+          }
+
+          const rms = Math.sqrt(sum / Math.max(1, end - start));
+          values.push(Math.min(1, rms * 5.5));
+        }
+
+        await ctx.close().catch(() => {});
+
+        const bars = renderBars(values);
+        updateWaveProgress(bars);
+
+        return bars;
+      } catch (error) {
+        console.warn('No se pudo construir la forma de onda real:', error);
+        return fallbackWaveform();
+      }
+    }
+
+    let bars = fallbackWaveform();
+
+    function formatTime(seconds) {
+      if (!Number.isFinite(seconds)) return '00:00';
+
+      const total = Math.max(0, Math.floor(seconds));
+      const minutes = Math.floor(total / 60);
+      const secondsPart = String(total % 60).padStart(2, '0');
+
+      return `${String(minutes).padStart(2, '0')}:${secondsPart}`;
+    }
+
+    function updateWaveProgress(activeBars = bars) {
+      const duration = audio.duration || 0;
+      const current = audio.currentTime || 0;
+      const ratio = duration > 0
+        ? Math.min(1, current / duration)
+        : 0;
+
+      if (progress) {
+        progress.style.width = `${ratio * 100}%`;
+      }
+
+      if (time) {
+        time.textContent = duration
+          ? formatTime(Math.max(0, duration - current))
+          : '00:00';
+      }
+
+      activeBars.forEach((bar, index) => {
+        bar.classList.toggle(
+          'active',
+          index < Math.floor(ratio * activeBars.length)
+        );
+      });
+    }
+
+    function setPlayIcon(isPlaying) {
+      if (isPlaying) {
+        play.innerHTML =
+          '<span style="font:400 11px DM Mono,monospace">Ⅱ</span>';
+      } else {
+        play.innerHTML = '<span class="play-icon"></span>';
+      }
+    }
+
+    audio.addEventListener('loadedmetadata', () => {
+      if (time) {
+        time.textContent = formatTime(audio.duration);
+      }
+
+      if (sub) {
+        sub.textContent =
+          `${formatTime(audio.duration)} · nota de voz`;
+      }
+
+      updateWaveProgress();
+    });
+
+    audio.addEventListener('timeupdate', () => {
+      updateWaveProgress();
+    });
+
+    audio.addEventListener('play', () => {
+      if (state) {
+        state.textContent = 'Reproduciendo la nota de voz…';
+      }
+
+      if (sub) {
+        sub.textContent = 'Audio real · Mixtape';
+      }
+
+      setPlayIcon(true);
+    });
+
+    audio.addEventListener('pause', () => {
+      if (!audio.ended) {
+        if (state) state.textContent = 'Nota pausada.';
+        if (sub) sub.textContent = 'Presiona para continuar';
+        setPlayIcon(false);
+      }
+    });
+
+    audio.addEventListener('ended', () => {
+      updateWaveProgress();
+      if (progress) progress.style.width = '100%';
+      if (time) time.textContent = '00:00';
+
+      if (state) state.textContent = 'La nota terminó.';
+      if (sub) sub.textContent = 'La cinta está lista para Side A.';
+
+      setPlayIcon(false);
+      unlock?.classList.add('show');
+    });
+
+    audio.addEventListener('error', () => {
+      if (state) state.textContent = 'No se pudo cargar la nota de voz.';
+      if (sub) sub.textContent = 'La música continúa disponible abajo.';
+    });
+
+    play.addEventListener('click', () => {
+      if (audio.ended) {
+        audio.currentTime = 0;
+      }
+
+      if (audio.paused) {
+        audio.play().catch(error => {
+          console.error('Error reproduciendo voz:', error);
+          if (state) state.textContent = 'No se pudo reproducir el audio.';
+        });
+      } else {
+        audio.pause();
+      }
+    });
+
+    await buildRealWaveform();
+  }, 100);
+})();
+</script>
+
 </body>
 </html>
