@@ -742,8 +742,8 @@ footer{
     const artist = String(track?.artist || '').trim();
     const query = `${title} ${artist}`.trim();
     return query
-      ? `https://open.spotify.com/search/${encodeURIComponent(query)}`
-      : 'https://open.spotify.com/search';
+      ? `https://open.spotify.com/search/${encodeURIComponent(query)}/tracks`
+      : 'https://open.spotify.com/search/tracks';
   }
 
   const songs = {
@@ -1250,8 +1250,8 @@ function spotifySearchUrl(track){
   const artist = String(track?.artist || '').trim();
   const query = `${title} ${artist}`.trim();
   return query
-    ? `https://open.spotify.com/search/${encodeURIComponent(query)}`
-    : 'https://open.spotify.com/search';
+    ? `https://open.spotify.com/search/${encodeURIComponent(query)}/tracks`
+    : 'https://open.spotify.com/search/tracks';
 }
 
 const mixtapeData={
@@ -1534,8 +1534,8 @@ flipButton.addEventListener('click',()=>{
     // Siempre genera una búsqueda con título + artista.
     return {
       spotify: queryText
-        ? `https://open.spotify.com/search/${query}`
-        : 'https://open.spotify.com/search',
+        ? `https://open.spotify.com/search/${query}/tracks`
+        : 'https://open.spotify.com/search/tracks',
       apple: queryText
         ? `https://music.apple.com/us/search?term=${query}`
         : 'https://music.apple.com/',
