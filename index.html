@@ -893,6 +893,12 @@ footer{
   // Initial visible demo.
   renderFallbackSide('A');
 
+  // When a real public Mixtape is loaded, the dedicated real-audio
+  // controller below owns the voice player. This prevents the legacy
+  // demo controller from competing with it.
+  const hasRemoteMixtape = new URLSearchParams(window.location.search).has('id');
+  if (hasRemoteMixtape) return;
+
   // Real sample voice audio.
   const audio=document.getElementById('voiceAudio');
   const play=document.getElementById('voicePlay');
@@ -1835,33 +1841,37 @@ flipButton.addEventListener('click',()=>{
 
 <script>
 /* =========================================================
-   ETÉREO REAL VOICE CONTROLLER
-   Replaces the demo timer with the actual audio position and
-   builds a waveform from the real signed audio file.
+   ETÉREO REAL VOICE CONTROLLER — FINAL
+   One controller only for public ?id=... Mixtapes.
+   Real waveform + smooth progress + orange played region.
    ========================================================= */
 (() => {
-  const waitForRealAudio = setInterval(async () => {
-    const originalAudio = document.getElementById('voiceAudio');
-    const source = originalAudio?.currentSrc || originalAudio?.src || '';
+  const params = new URLSearchParams(window.location.search);
+  if (!params.has('id')) return;
 
-    if (!originalAudio || !source.includes('/storage/v1/object/sign/mixtape-audio/')) {
+  const wait = setInterval(() => {
+    const sourceAudio = document.getElementById('voiceAudio');
+    const src = sourceAudio?.currentSrc || sourceAudio?.src || '';
+
+    if (!sourceAudio || !src.includes('/storage/v1/object/sign/mixtape-audio/')) {
       return;
     }
 
-    clearInterval(waitForRealAudio);
+    clearInterval(wait);
 
-    const audio = originalAudio.cloneNode(true);
+    // Replace the legacy audio element so only this controller owns playback.
+    const audio = sourceAudio.cloneNode(true);
     audio.id = 'voiceAudioReal';
-    audio.preload = 'metadata';
+    audio.preload = 'auto';
     audio.crossOrigin = 'anonymous';
-    originalAudio.replaceWith(audio);
+    sourceAudio.replaceWith(audio);
 
-    const oldPlay = document.getElementById('voicePlay');
-    if (!oldPlay) return;
+    const sourcePlay = document.getElementById('voicePlay');
+    if (!sourcePlay) return;
 
-    const play = oldPlay.cloneNode(true);
+    const play = sourcePlay.cloneNode(true);
     play.id = 'voicePlayReal';
-    oldPlay.replaceWith(play);
+    sourcePlay.replaceWith(play);
 
     const wave = document.getElementById('voiceWave');
     const progress = document.getElementById('voiceProgress');
@@ -1872,166 +1882,162 @@ flipButton.addEventListener('click',()=>{
 
     if (!wave) return;
 
-    const BAR_COUNT = 64;
+    const BAR_COUNT = 72;
+    let bars = [];
+    let raf = 0;
 
-    function renderBars(values) {
+    const clamp01 = value => Math.max(0, Math.min(1, value));
+
+    function formatTime(seconds) {
+      if (!Number.isFinite(seconds)) return '00:00';
+      const total = Math.max(0, Math.floor(seconds));
+      return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
+    }
+
+    function createBars(values) {
       wave.innerHTML = '';
-
-      const bars = [];
-
-      values.forEach(value => {
+      bars = values.map(value => {
         const bar = document.createElement('span');
         bar.className = 'voice-bar';
-        bar.style.height = `${Math.max(12, Math.min(92, value * 100))}%`;
+        bar.style.height = `${Math.max(10, Math.min(94, value * 100))}%`;
+        bar.style.setProperty('--fill', '0%');
         wave.appendChild(bar);
-        bars.push(bar);
+        return bar;
       });
-
-      // Every new waveform starts unplayed; the real audio position
-      // will progressively color the bars from left to right.
-      bars.forEach(bar => bar.classList.remove('active'));
-
       return bars;
     }
 
-    function fallbackWaveform() {
-      const values = Array.from({ length: BAR_COUNT }, (_, i) => {
+    function fallbackValues() {
+      return Array.from({ length: BAR_COUNT }, (_, i) => {
         const x = i / (BAR_COUNT - 1);
         const envelope =
-          0.34 +
-          0.28 * Math.sin(x * Math.PI * 3.1 + 0.7) +
-          0.15 * Math.sin(x * Math.PI * 9.4 + 1.8);
+          0.28 +
+          0.24 * Math.sin(x * Math.PI * 2.6 + 0.45) +
+          0.17 * Math.sin(x * Math.PI * 7.8 + 1.1) +
+          0.10 * Math.sin(x * Math.PI * 18.4 + 0.3);
+        return clamp01(envelope);
+      });
+    }
 
-        return Math.max(0.12, Math.min(0.85, envelope));
+    function paint(ratio) {
+      const p = clamp01(ratio);
+      const position = p * bars.length;
+
+      bars.forEach((bar, i) => {
+        // Smoothly fill the current bar instead of jumping only once per timeupdate.
+        const fill = clamp01(position - i);
+        bar.style.setProperty('--fill', `${fill * 100}%`);
       });
 
-      return renderBars(values);
+      if (progress) {
+        progress.style.width = `${p * 100}%`;
+      }
+
+      if (time) {
+        time.textContent = formatTime(Math.max(0, (audio.duration || 0) - (audio.currentTime || 0)));
+      }
+    }
+
+    function stopRaf() {
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
+    }
+
+    function tick() {
+      const duration = audio.duration || 0;
+      const ratio = duration > 0 ? audio.currentTime / duration : 0;
+      paint(ratio);
+      if (!audio.paused && !audio.ended) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        raf = 0;
+      }
+    }
+
+    function startRaf() {
+      stopRaf();
+      raf = requestAnimationFrame(tick);
+    }
+
+    function setPlayIcon(playing) {
+      play.innerHTML = playing
+        ? '<span style="font:400 11px DM Mono,monospace">Ⅱ</span>'
+        : '<span class="play-icon"></span>';
     }
 
     async function buildRealWaveform() {
       try {
-        const response = await fetch(audio.currentSrc || audio.src, {
-          cache: 'no-store'
-        });
-
-        if (!response.ok) throw new Error('No se pudo descargar el audio.');
+        const response = await fetch(audio.currentSrc || audio.src, { cache: 'no-store' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
         const buffer = await response.arrayBuffer();
-        const AudioContextCtor =
-          window.AudioContext || window.webkitAudioContext;
-
+        const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
         if (!AudioContextCtor) throw new Error('Web Audio no disponible.');
 
         const ctx = new AudioContextCtor();
-        const audioBuffer = await ctx.decodeAudioData(buffer.slice(0));
-
-        const channel = audioBuffer.getChannelData(0);
+        const decoded = await ctx.decodeAudioData(buffer.slice(0));
+        const channel = decoded.getChannelData(0);
         const values = [];
 
         for (let i = 0; i < BAR_COUNT; i += 1) {
-          const start = Math.floor((i / BAR_COUNT) * channel.length);
-          const end = Math.max(
-            start + 1,
-            Math.floor(((i + 1) / BAR_COUNT) * channel.length)
-          );
-
+          const start = Math.floor(i * channel.length / BAR_COUNT);
+          const end = Math.max(start + 1, Math.floor((i + 1) * channel.length / BAR_COUNT));
           let sum = 0;
-
           for (let j = start; j < end; j += 1) {
-            const sample = channel[j] || 0;
-            sum += sample * sample;
+            const s = channel[j] || 0;
+            sum += s * s;
           }
-
           const rms = Math.sqrt(sum / Math.max(1, end - start));
-          values.push(Math.min(1, rms * 5.5));
+          values.push(clamp01(rms * 7.5 + 0.04));
         }
 
         await ctx.close().catch(() => {});
-
-        const bars = renderBars(values);
-        updateWaveProgress(bars);
-
-        return bars;
+        createBars(values);
       } catch (error) {
-        console.warn('No se pudo construir la forma de onda real:', error);
-        return fallbackWaveform();
-      }
-    }
-
-    let bars = fallbackWaveform();
-
-    function formatTime(seconds) {
-      if (!Number.isFinite(seconds)) return '00:00';
-
-      const total = Math.max(0, Math.floor(seconds));
-      const minutes = Math.floor(total / 60);
-      const secondsPart = String(total % 60).padStart(2, '0');
-
-      return `${String(minutes).padStart(2, '0')}:${secondsPart}`;
-    }
-
-    function updateWaveProgress(activeBars = bars) {
-      const duration = audio.duration || 0;
-      const current = audio.currentTime || 0;
-      const ratio = duration > 0
-        ? Math.min(1, current / duration)
-        : 0;
-
-      if (progress) {
-        progress.style.width = `${ratio * 100}%`;
+        console.warn('Forma de onda real no disponible; usando forma de respaldo:', error);
+        createBars(fallbackValues());
       }
 
-      if (time) {
-        time.textContent = duration
-          ? formatTime(Math.max(0, duration - current))
-          : '00:00';
-      }
-
-      const activeCount = Math.floor(ratio * activeBars.length);
-      activeBars.forEach((bar, index) => {
-        bar.classList.toggle('active', index < activeCount);
-      });
+      paint(0);
     }
 
-    function setPlayIcon(isPlaying) {
-      if (isPlaying) {
-        play.innerHTML =
-          '<span style="font:400 11px DM Mono,monospace">Ⅱ</span>';
-      } else {
-        play.innerHTML = '<span class="play-icon"></span>';
+    // Ensure the active region is visibly ETÉREO orange.
+    const style = document.createElement('style');
+    style.textContent = `
+      #voiceWave .voice-bar {
+        background: linear-gradient(
+          to top,
+          var(--accent) 0%,
+          var(--accent) var(--fill),
+          rgba(237,230,214,.16) var(--fill),
+          rgba(237,230,214,.16) 100%
+        ) !important;
+        opacity: 1 !important;
+        transition: none !important;
+        box-shadow: inset 0 0 0 0 rgba(221,142,92,0);
       }
-    }
+      #voiceWave .voice-bar[style*="100%"] {
+        filter: brightness(1.08);
+      }
+    `;
+    document.head.appendChild(style);
 
     audio.addEventListener('loadedmetadata', () => {
-      if (time) {
-        time.textContent = formatTime(audio.duration);
-      }
-
-      if (sub) {
-        sub.textContent =
-          `${formatTime(audio.duration)} · nota de voz`;
-      }
-
-      updateWaveProgress();
-    });
-
-    audio.addEventListener('timeupdate', () => {
-      updateWaveProgress();
+      if (time) time.textContent = formatTime(audio.duration);
+      if (sub) sub.textContent = `${formatTime(audio.duration)} · nota de voz`;
+      paint(0);
     });
 
     audio.addEventListener('play', () => {
-      if (state) {
-        state.textContent = 'Reproduciendo la nota de voz…';
-      }
-
-      if (sub) {
-        sub.textContent = 'Audio real · Mixtape';
-      }
-
+      if (state) state.textContent = 'Reproduciendo la nota de voz…';
+      if (sub) sub.textContent = 'Audio real · Mixtape';
       setPlayIcon(true);
+      startRaf();
     });
 
     audio.addEventListener('pause', () => {
+      stopRaf();
+      paint(audio.duration ? audio.currentTime / audio.duration : 0);
       if (!audio.ended) {
         if (state) state.textContent = 'Nota pausada.';
         if (sub) sub.textContent = 'Presiona para continuar';
@@ -2040,27 +2046,23 @@ flipButton.addEventListener('click',()=>{
     });
 
     audio.addEventListener('ended', () => {
-      updateWaveProgress();
-      if (progress) progress.style.width = '100%';
-      if (time) time.textContent = '00:00';
-
+      stopRaf();
+      paint(1);
       if (state) state.textContent = 'La nota terminó.';
       if (sub) sub.textContent = 'La cinta está lista para Side A.';
-
+      if (time) time.textContent = '00:00';
       setPlayIcon(false);
       unlock?.classList.add('show');
     });
 
     audio.addEventListener('error', () => {
+      stopRaf();
       if (state) state.textContent = 'No se pudo cargar la nota de voz.';
       if (sub) sub.textContent = 'La música continúa disponible abajo.';
     });
 
     play.addEventListener('click', () => {
-      if (audio.ended) {
-        audio.currentTime = 0;
-      }
-
+      if (audio.ended) audio.currentTime = 0;
       if (audio.paused) {
         audio.play().catch(error => {
           console.error('Error reproduciendo voz:', error);
@@ -2071,7 +2073,7 @@ flipButton.addEventListener('click',()=>{
       }
     });
 
-    await buildRealWaveform();
+    buildRealWaveform();
   }, 100);
 })();
 </script>
