@@ -156,8 +156,16 @@ body.opened #listen{opacity:1;transform:translateY(0);pointer-events:auto}
 .voice-label,.voice-time{font:400 8px 'DM Mono',monospace;letter-spacing:.11em;text-transform:uppercase}
 .voice-label{color:var(--muted)} .voice-time{color:var(--text)}
 .voice-wave{height:62px;display:flex;align-items:center;gap:2px;overflow:hidden}
-.voice-bar{flex:1;min-width:2px;background:rgba(237,230,214,.17);transform-origin:center;transition:background .18s}
-.voice-bar.active{background:var(--accent)}
+.voice-bar{
+  flex:1;min-width:2px;background:rgba(237,230,214,.17);
+  transform-origin:center;transition:background .12s ease,filter .12s ease,opacity .12s ease;
+  opacity:.72;
+}
+.voice-bar.active{
+  background:var(--accent);
+  opacity:1;
+  filter:brightness(1.08);
+}
 .voice-actions{display:flex;align-items:center;gap:15px;margin-top:14px}
 .voice-play{
   width:46px;height:46px;border:1px solid rgba(237,230,214,.18);border-radius:50%;
@@ -1879,6 +1887,10 @@ flipButton.addEventListener('click',()=>{
         bars.push(bar);
       });
 
+      // Every new waveform starts unplayed; the real audio position
+      // will progressively color the bars from left to right.
+      bars.forEach(bar => bar.classList.remove('active'));
+
       return bars;
     }
 
@@ -1975,11 +1987,9 @@ flipButton.addEventListener('click',()=>{
           : '00:00';
       }
 
+      const activeCount = Math.floor(ratio * activeBars.length);
       activeBars.forEach((bar, index) => {
-        bar.classList.toggle(
-          'active',
-          index < Math.floor(ratio * activeBars.length)
-        );
+        bar.classList.toggle('active', index < activeCount);
       });
     }
 
