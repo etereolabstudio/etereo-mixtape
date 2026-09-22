@@ -1413,5 +1413,416 @@ flipButton.addEventListener('click',()=>{
    The web experience may flip the model, but never changes its geometry. */
 </script>
 
+
+<script>
+(() => {
+  /*
+   * ETÉREO MIXTAPE — REAL DATA CONNECTOR
+   * Public data is served by the Supabase Edge Function.
+   * The publishable key is safe for client-side use; no secret key belongs here.
+   */
+  const MIXTAPE_API =
+    'https://azihozkxamqthvgqfdba.supabase.co/functions/v1/get-public-mixtape';
+
+  const SUPABASE_PUBLISHABLE_KEY =
+    'sb_publishable_0OBtYGvR-o7oqIUBd-FJKg_XWCRVV_h';
+
+  const params = new URLSearchParams(window.location.search);
+  const publicId = (params.get('id') || '').trim();
+
+  // With no ?id=..., preserve the current demo/landing behavior.
+  if (!publicId) return;
+
+  const qs = selector => document.querySelector(selector);
+  const qsa = selector => Array.from(document.querySelectorAll(selector));
+
+  const heroEyebrow = qs('#hero .hero-copy .eyebrow');
+  const heroTitle = qs('#hero .hero-copy h1');
+  const heroCopy = qs('#hero .hero-copy p');
+  const heroFacts = qsa('#hero .hero-facts span');
+  const headerEdition = qs('header .edition');
+  const linerTopline = qs('.liner-topline span:first-child');
+  const trackList = qs('#trackList');
+  const sideTitle = qs('#sideTitle');
+  const sideToggleA = qs('#sideToggleA');
+  const sideToggleB = qs('#sideToggleB');
+  const linerSideLabel = qs('#linerSideLabel');
+  const linerLetter = qs('#linerLetter');
+  const linerTrackCount = qs('#linerTrackCount');
+  const linerTotalTime = qs('#linerTotalTime');
+  const tapeProgressFill = qs('#tapeProgressFill');
+  const tapeProgressMarker = qs('#tapeProgressMarker');
+
+  const voiceAudio = qs('#voiceAudio');
+  const voiceTime = qs('#voiceTime');
+  const voiceState = qs('#voiceState');
+  const voiceSub = qs('#voiceSub');
+  const voicePlay = qs('#voicePlay');
+  const voiceProgress = qs('#voiceProgress');
+  const voiceWave = qs('#voiceWave');
+  const unlock = qs('#unlock');
+
+  let remoteTracks = { A: [], B: [] };
+  let currentRemoteSide = 'A';
+  let remoteMixtape = null;
+
+  function formatDuration(seconds) {
+    const value = Number(seconds);
+    if (!Number.isFinite(value)) return '--:--';
+
+    const total = Math.max(0, Math.round(value));
+    const minutes = Math.floor(total / 60);
+    const secs = String(total % 60).padStart(2, '0');
+
+    return `${minutes}:${secs}`;
+  }
+
+  function trackSeconds(track) {
+    const value = Number(track.duration_seconds);
+    return Number.isFinite(value) ? Math.max(0, Math.round(value)) : 0;
+  }
+
+  function totalSeconds(side) {
+    return remoteTracks[side].reduce(
+      (sum, track) => sum + trackSeconds(track),
+      0
+    );
+  }
+
+  function escapeText(value) {
+    return value == null ? '' : String(value);
+  }
+
+  function makeSearchLinks(track) {
+    const query = encodeURIComponent(
+      `${track.title || ''} ${track.artist || ''}`.trim()
+    );
+
+    return {
+      spotify:
+        track.spotify_url ||
+        `https://open.spotify.com/search/${query}`,
+      apple:
+        track.apple_url ||
+        `https://music.apple.com/us/search?term=${query}`,
+      youtube:
+        track.youtube_url ||
+        `https://www.youtube.com/results?search_query=${query}`
+    };
+  }
+
+  function setVoiceSource(url, durationSeconds) {
+    if (!voiceAudio || !url) return;
+
+    voiceAudio.pause();
+    voiceAudio.src = url;
+    voiceAudio.load();
+
+    if (voiceSub) {
+      voiceSub.textContent =
+        durationSeconds
+          ? `${formatDuration(durationSeconds)} · nota de voz`
+          : 'Nota de voz · ETÉREO';
+    }
+
+    if (voiceState) {
+      voiceState.textContent =
+        'Tu voz viene antes de la música.';
+    }
+  }
+
+  function updateTrackPanel(track) {
+    const panel = qs('#listenPanel');
+    const title = qs('#panelTitle');
+    const artist = qs('#panelArtist');
+    const spotify = qs('#spotifyLink');
+    const apple = qs('#appleLink');
+    const youtube = qs('#youtubeLink');
+
+    const links = makeSearchLinks(track);
+
+    if (title) title.textContent = track.title || '';
+    if (artist) artist.textContent = track.artist || '';
+
+    if (spotify) spotify.href = links.spotify;
+    if (apple) apple.href = links.apple;
+    if (youtube) youtube.href = links.youtube;
+
+    panel?.classList.add('open');
+    panel?.setAttribute('aria-hidden', 'false');
+  }
+
+  function renderRemoteSide(side) {
+    currentRemoteSide = side;
+
+    const tracks = remoteTracks[side] || [];
+
+    if (sideTitle) sideTitle.textContent = `Side ${side}`;
+    sideToggleA?.classList.toggle('active', side === 'A');
+    sideToggleB?.classList.toggle('active', side === 'B');
+
+    if (linerSideLabel) linerSideLabel.textContent = `SIDE ${side}`;
+    if (linerLetter) linerLetter.textContent = side;
+
+    if (linerTrackCount) {
+      linerTrackCount.textContent =
+        `${String(tracks.length).padStart(2, '0')} TRACKS`;
+    }
+
+    const total = totalSeconds(side);
+
+    if (linerTotalTime) {
+      linerTotalTime.textContent =
+        `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
+    }
+
+    if (tapeProgressFill) {
+      tapeProgressFill.style.width = side === 'A' ? '34%' : '72%';
+    }
+
+    if (tapeProgressMarker) {
+      tapeProgressMarker.style.left = side === 'A' ? '34%' : '72%';
+    }
+
+    if (!trackList) return;
+
+    trackList.innerHTML = '';
+
+    tracks.forEach((track, index) => {
+      const row = document.createElement('div');
+      row.className = 'track-row';
+
+      const position =
+        Number(track.position) ||
+        index + 1;
+
+      row.innerHTML = `
+        <div class="track-number">${String(position).padStart(2, '0')}</div>
+        <div>
+          <div class="track-name">${escapeText(track.title)}</div>
+          <div class="track-artist">${escapeText(track.artist)}</div>
+          ${
+            track.note
+              ? `<div class="track-note">${escapeText(track.note)}</div>`
+              : ''
+          }
+        </div>
+        <div class="track-open">
+          ${formatDuration(track.duration_seconds)}<br>
+          ESCUCHAR ↗
+        </div>
+      `;
+
+      row.addEventListener('click', () => {
+        updateTrackPanel(track);
+      });
+
+      trackList.appendChild(row);
+    });
+  }
+
+  function renderUnavailable(message) {
+    document.title = 'ETÉREO — Mixtape no disponible';
+
+    if (heroEyebrow) {
+      heroEyebrow.textContent = 'ETÉREO · MIXTAPE';
+    }
+
+    if (heroTitle) {
+      heroTitle.textContent = 'Esta Mixtape no está disponible.';
+    }
+
+    if (heroCopy) {
+      heroCopy.textContent = message;
+    }
+
+    if (heroFacts.length) {
+      heroFacts.forEach(item => {
+        item.textContent = '—';
+      });
+    }
+
+    const start = qs('#startButton');
+    if (start) {
+      start.disabled = true;
+      start.style.opacity = '.45';
+      start.style.cursor = 'not-allowed';
+      start.textContent = 'Mixtape no disponible';
+    }
+
+    qsa('#listen, #tracks, #flip, #product').forEach(section => {
+      section.style.display = 'none';
+    });
+  }
+
+  async function loadRemoteMixtape() {
+    try {
+      const response = await fetch(
+        `${MIXTAPE_API}?id=${encodeURIComponent(publicId)}`,
+        {
+          method: 'GET',
+          headers: {
+            apikey: SUPABASE_PUBLISHABLE_KEY
+          },
+          cache: 'no-store'
+        }
+      );
+
+      const payload = await response.json().catch(() => null);
+
+      if (!response.ok || !payload?.ok || !payload?.mixtape) {
+        renderUnavailable(
+          payload?.error ||
+            'La Mixtape que buscas todavía no está disponible.'
+        );
+        return;
+      }
+
+      remoteMixtape = payload.mixtape;
+
+      const recipient = remoteMixtape.recipient_name || 'ti';
+      const sender = remoteMixtape.sender_name || '';
+      const tracks = Array.isArray(remoteMixtape.tracks)
+        ? remoteMixtape.tracks
+        : [];
+
+      remoteTracks = {
+        A: tracks
+          .filter(track => track.side === 'A')
+          .sort((a, b) => Number(a.position) - Number(b.position)),
+        B: tracks
+          .filter(track => track.side === 'B')
+          .sort((a, b) => Number(a.position) - Number(b.position))
+      };
+
+      document.title = `ETÉREO — Para ${recipient}`;
+
+      if (heroEyebrow) {
+        heroEyebrow.textContent =
+          `UNA MIXTAPE PARA ${recipient.toUpperCase()} · ${remoteMixtape.public_id}`;
+      }
+
+      if (heroTitle) {
+        heroTitle.textContent = `Para ${recipient}.`;
+      }
+
+      if (heroCopy) {
+        heroCopy.textContent = sender
+          ? `Seis canciones, una voz y un pequeño ritual que ${sender} hizo pensando en ti. Escúchalo con calma.`
+          : 'Seis canciones, una voz y un pequeño ritual hecho pensando en ti. Escúchalo con calma.';
+      }
+
+      if (heroFacts[0]) {
+        heroFacts[0].textContent =
+          `${tracks.length} canciones`;
+      }
+
+      if (heroFacts[1]) {
+        heroFacts[1].textContent = '1 nota de voz';
+      }
+
+      if (headerEdition) {
+        headerEdition.textContent = remoteMixtape.public_id;
+      }
+
+      if (linerTopline) {
+        linerTopline.textContent =
+          `ETÉREO · ${remoteMixtape.public_id}`;
+      }
+
+      renderRemoteSide('A');
+
+      if (remoteMixtape.voice_url) {
+        setVoiceSource(
+          remoteMixtape.voice_url,
+          remoteMixtape.voice_duration_seconds
+        );
+      } else {
+        if (voiceState) {
+          voiceState.textContent =
+            'Esta Mixtape no tiene nota de voz.';
+        }
+
+        if (voiceSub) {
+          voiceSub.textContent =
+            'Puedes continuar directamente con la música.';
+        }
+      }
+
+      /*
+       * The original demo script still owns the physical cassette animation.
+       * We keep that behavior and refresh the real track data after its
+       * side-change render has finished.
+       */
+      const sideAButton = qs('#sideToggleA');
+      const sideBButton = qs('#sideToggleB');
+      const flipButton = qs('#flipButton');
+
+      const repaintAfterPhysicalFlip = side => {
+        window.setTimeout(() => {
+          renderRemoteSide(side);
+        }, 820);
+      };
+
+      sideAButton?.addEventListener('click', () => {
+        repaintAfterPhysicalFlip('A');
+      });
+
+      sideBButton?.addEventListener('click', () => {
+        repaintAfterPhysicalFlip('B');
+      });
+
+      flipButton?.addEventListener('click', () => {
+        const next =
+          currentRemoteSide === 'A' ? 'B' : 'A';
+        repaintAfterPhysicalFlip(next);
+      });
+
+      /*
+       * Prevent the hardcoded demo audio from conflicting with the real voice.
+       * The <audio> element now points to the signed Storage URL.
+       */
+      voiceAudio?.addEventListener('loadedmetadata', () => {
+        if (voiceTime) {
+          voiceTime.textContent =
+            formatDuration(voiceAudio.duration);
+        }
+
+        if (voiceSub) {
+          voiceSub.textContent =
+            `${formatDuration(voiceAudio.duration)} · nota de voz`;
+        }
+      });
+
+      voiceAudio?.addEventListener('error', () => {
+        if (voiceState) {
+          voiceState.textContent =
+            'No se pudo cargar la nota de voz.';
+        }
+
+        if (voiceSub) {
+          voiceSub.textContent =
+            'La música continúa disponible abajo.';
+        }
+      });
+
+      voiceAudio?.addEventListener('ended', () => {
+        if (unlock) {
+          unlock.classList.add('show');
+        }
+      });
+    } catch (error) {
+      console.error('Error cargando Mixtape pública:', error);
+
+      renderUnavailable(
+        'No fue posible cargar esta Mixtape en este momento.'
+      );
+    }
+  }
+
+  loadRemoteMixtape();
+})();
+</script>
+
 </body>
 </html>
