@@ -1524,35 +1524,18 @@ flipButton.addEventListener('click',()=>{
     const queryText = `${title} ${artist}`.trim();
     const query = encodeURIComponent(queryText);
 
-    const spotifyExact = safeExternalUrl(track?.spotify_url, [
-      'open.spotify.com'
-    ]);
-    const appleExact = safeExternalUrl(track?.apple_url, [
-      'music.apple.com'
-    ]);
-    const youtubeExact = safeExternalUrl(track?.youtube_url, [
-      'www.youtube.com',
-      'youtube.com',
-      'music.youtube.com',
-      'youtu.be'
-    ]);
-
+    // La página pública NO usa URLs guardadas en Supabase.
+    // Siempre genera una búsqueda con título + artista.
     return {
-      spotify:
-        spotifyExact ||
-        (queryText
-          ? `https://open.spotify.com/search/${query}`
-          : 'https://open.spotify.com/'),
-      apple:
-        appleExact ||
-        (queryText
-          ? `https://music.apple.com/us/search?term=${query}`
-          : 'https://music.apple.com/'),
-      youtube:
-        youtubeExact ||
-        (queryText
-          ? `https://www.youtube.com/results?search_query=${query}`
-          : 'https://www.youtube.com/')
+      spotify: queryText
+        ? `https://open.spotify.com/search/${query}`
+        : 'https://open.spotify.com/search/',
+      apple: queryText
+        ? `https://music.apple.com/us/search?term=${query}`
+        : 'https://music.apple.com/',
+      youtube: queryText
+        ? `https://www.youtube.com/results?search_query=${query}`
+        : 'https://www.youtube.com/'
     };
   }
 
