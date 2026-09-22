@@ -709,7 +709,7 @@ footer{
   <div class="listen-panel-card">
     <div class="listen-panel-head">
       <div>
-        <div class="listen-panel-label">ESCUCHAR</div>
+        <div class="listen-panel-label">ABRIR CANCIÓN</div>
         <div class="listen-panel-title" id="panelTitle">Mystery of Love</div>
         <div class="listen-panel-artist" id="panelArtist">Sufjan Stevens</div>
       </div>
@@ -729,7 +729,7 @@ footer{
     </div>
 
     <div class="panel-note">
-      Los enlaces mostrados son los que se guardaron desde Etéreo Manager.
+      Se genera una búsqueda con el título y artista. Elige dónde quieres escucharla.
     </div>
   </div>
 </div>
@@ -1507,11 +1507,25 @@ flipButton.addEventListener('click',()=>{
     return value == null ? '' : String(value);
   }
 
-  function makeTrackLinks(track) {
+  function makeSearchLinks(track) {
+    const title = String(track?.title || '').trim();
+    const artist = String(track?.artist || '').trim();
+    const queryText = `${title} ${artist}`.trim();
+    const query = encodeURIComponent(queryText);
+    const youtubeQuery = encodeURIComponent(queryText).replace(/%20/g, '+');
+
+    // Deliberadamente NO usamos spotify_url/apple_url/youtube_url.
+    // La búsqueda se genera en tiempo real a partir de la canción configurada.
     return {
-      spotify: String(track.spotify_url || '').trim(),
-      apple: String(track.apple_url || '').trim(),
-      youtube: String(track.youtube_url || '').trim()
+      spotify: queryText
+        ? `https://open.spotify.com/search/${query}`
+        : 'https://open.spotify.com/',
+      apple: queryText
+        ? `https://music.apple.com/us/search?term=${query}`
+        : 'https://music.apple.com/',
+      youtube: queryText
+        ? `https://www.youtube.com/results?search_query=${youtubeQuery}`
+        : 'https://www.youtube.com/'
     };
   }
 
@@ -1543,21 +1557,14 @@ flipButton.addEventListener('click',()=>{
     const apple = qs('#appleLink');
     const youtube = qs('#youtubeLink');
 
-    const links = makeTrackLinks(track);
+    const links = makeSearchLinks(track);
 
     if (title) title.textContent = track.title || '';
     if (artist) artist.textContent = track.artist || '';
 
-    [
-      [spotify, links.spotify],
-      [apple, links.apple],
-      [youtube, links.youtube]
-    ].forEach(([element, href]) => {
-      if (!element) return;
-      element.href = href || '#';
-      element.style.display = href ? '' : 'none';
-      element.setAttribute('aria-hidden', href ? 'false' : 'true');
-    });
+    if (spotify) spotify.href = links.spotify;
+    if (apple) apple.href = links.apple;
+    if (youtube) youtube.href = links.youtube;
 
     panel?.classList.add('open');
     panel?.setAttribute('aria-hidden', 'false');
