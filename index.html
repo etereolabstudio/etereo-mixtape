@@ -729,7 +729,7 @@ footer{
     </div>
 
     <div class="panel-note">
-      Se genera una búsqueda con el título y artista. Elige dónde quieres escucharla.
+      Spotify, Apple Music y YouTube se abren buscando el título + artista. Elige dónde quieres escucharla.
     </div>
   </div>
 </div>
@@ -737,6 +737,15 @@ footer{
 
 <script>
 (function(){
+  function spotifySearchUrl(track){
+    const title = String(track?.title || '').trim();
+    const artist = String(track?.artist || '').trim();
+    const query = `${title} ${artist}`.trim();
+    return query
+      ? `https://open.spotify.com/search/${encodeURIComponent(query)}`
+      : 'https://open.spotify.com/search';
+  }
+
   const songs = {
     A: [
       {
@@ -745,7 +754,6 @@ footer{
         artist:'Sufjan Stevens',
         note:'La primera que pensé para esta cinta.',
         duration:'04:08',
-        spotify:'https://open.spotify.com/search/Mystery%20of%20Love%20Sufjan%20Stevens',
         apple:'https://music.apple.com/us/search?term=Mystery%20of%20Love%20Sufjan%20Stevens',
         youtube:'https://www.youtube.com/results?search_query=Mystery+of+Love+Sufjan+Stevens'
       },
@@ -755,7 +763,6 @@ footer{
         artist:'The Temper Trap',
         note:'Para los días que quiero guardar.',
         duration:'03:54',
-        spotify:'https://open.spotify.com/search/Sweet%20Disposition%20The%20Temper%20Trap',
         apple:'https://music.apple.com/us/search?term=Sweet%20Disposition%20The%20Temper%20Trap',
         youtube:'https://www.youtube.com/results?search_query=Sweet+Disposition+The+Temper+Trap'
       },
@@ -765,7 +772,6 @@ footer{
         artist:'Cigarettes After Sex',
         note:'',
         duration:'04:50',
-        spotify:'https://open.spotify.com/search/Apocalypse%20Cigarettes%20After%20Sex',
         apple:'https://music.apple.com/us/search?term=Apocalypse%20Cigarettes%20After%20Sex',
         youtube:'https://www.youtube.com/results?search_query=Apocalypse+Cigarettes+After+Sex'
       }
@@ -777,7 +783,6 @@ footer{
         artist:'Cigarettes After Sex',
         note:'Para escuchar despacio.',
         duration:'04:46',
-        spotify:'https://open.spotify.com/search/Nothing%27s%20Gonna%20Hurt%20You%20Baby%20Cigarettes%20After%20Sex',
         apple:'https://music.apple.com/us/search?term=Nothing%27s%20Gonna%20Hurt%20You%20Baby%20Cigarettes%20After%20Sex',
         youtube:'https://www.youtube.com/results?search_query=Nothing%27s+Gonna+Hurt+You+Baby+Cigarettes+After+Sex'
       },
@@ -787,7 +792,6 @@ footer{
         artist:'Beach House',
         note:'',
         duration:'05:20',
-        spotify:'https://open.spotify.com/search/Space%20Song%20Beach%20House',
         apple:'https://music.apple.com/us/search?term=Space%20Song%20Beach%20House',
         youtube:'https://www.youtube.com/results?search_query=Space+Song+Beach+House'
       },
@@ -797,7 +801,6 @@ footer{
         artist:'Vacations',
         note:'Para cerrar la cinta.',
         duration:'03:25',
-        spotify:'https://open.spotify.com/search/Young%20Vacations',
         apple:'https://music.apple.com/us/search?term=Young%20Vacations',
         youtube:'https://www.youtube.com/results?search_query=Young+Vacations'
       }
@@ -833,7 +836,7 @@ footer{
     if(!panel)return;
     panelTitle.textContent=track.title;
     panelArtist.textContent=track.artist;
-    spotifyLink.href=track.spotify;
+    spotifyLink.href=spotifySearchUrl(track);
     appleLink.href=track.apple;
     youtubeLink.href=track.youtube;
     panel.classList.add('open');
@@ -1242,26 +1245,32 @@ document.getElementById('openSideA').addEventListener('click',()=>{
    TRACK DATA — DEMO
    ========================= */
 
+function spotifySearchUrl(track){
+  const title = String(track?.title || '').trim();
+  const artist = String(track?.artist || '').trim();
+  const query = `${title} ${artist}`.trim();
+  return query
+    ? `https://open.spotify.com/search/${encodeURIComponent(query)}`
+    : 'https://open.spotify.com/search';
+}
+
 const mixtapeData={
   A:[
     {
       n:'01',title:'Mystery of Love',artist:'Sufjan Stevens',duration:'04:08',
       note:'La primera que pensé para esta cinta.',
-      spotify:'https://open.spotify.com/search/Mystery%20of%20Love%20Sufjan%20Stevens',
       apple:'https://music.apple.com/us/search?term=Mystery%20of%20Love%20Sufjan%20Stevens',
       youtube:'https://www.youtube.com/results?search_query=Mystery+of+Love+Sufjan+Stevens'
     },
     {
       n:'02',title:'Sweet Disposition',artist:'The Temper Trap',duration:'03:54',
       note:'Para los días que quiero guardar.',
-      spotify:'https://open.spotify.com/search/Sweet%20Disposition%20The%20Temper%20Trap',
       apple:'https://music.apple.com/us/search?term=Sweet%20Disposition%20The%20Temper%20Trap',
       youtube:'https://www.youtube.com/results?search_query=Sweet+Disposition+The+Temper+Trap'
     },
     {
       n:'03',title:'Apocalypse',artist:'Cigarettes After Sex',duration:'04:50',
       note:'',
-      spotify:'https://open.spotify.com/search/Apocalypse%20Cigarettes%20After%20Sex',
       apple:'https://music.apple.com/us/search?term=Apocalypse%20Cigarettes%20After%20Sex',
       youtube:'https://www.youtube.com/results?search_query=Apocalypse+Cigarettes+After+Sex'
     }
@@ -1270,21 +1279,18 @@ const mixtapeData={
     {
       n:'01',title:"Nothing's Gonna Hurt You Baby",artist:'Cigarettes After Sex',duration:'04:46',
       note:'Para escuchar despacio.',
-      spotify:'https://open.spotify.com/search/Nothing%27s%20Gonna%20Hurt%20You%20Baby%20Cigarettes%20After%20Sex',
       apple:'https://music.apple.com/us/search?term=Nothing%27s%20Gonna%20Hurt%20You%20Baby%20Cigarettes%20After%20Sex',
       youtube:'https://www.youtube.com/results?search_query=Nothing%27s+Gonna+Hurt+You+Baby+Cigarettes+After+Sex'
     },
     {
       n:'02',title:'Space Song',artist:'Beach House',duration:'05:20',
       note:'',
-      spotify:'https://open.spotify.com/search/Space%20Song%20Beach%20House',
       apple:'https://music.apple.com/us/search?term=Space%20Song%20Beach%20House',
       youtube:'https://www.youtube.com/results?search_query=Space+Song+Beach+House'
     },
     {
       n:'03',title:'Young',artist:'Vacations',duration:'03:25',
       note:'Para cerrar la cinta.',
-      spotify:'https://open.spotify.com/search/Young%20Vacations',
       apple:'https://music.apple.com/us/search?term=Young%20Vacations',
       youtube:'https://www.youtube.com/results?search_query=Young+Vacations'
     }
@@ -1370,7 +1376,7 @@ const youtubeLink=document.getElementById('youtubeLink');
 function openListenPanel(track){
   panelTitle.textContent=track.title;
   panelArtist.textContent=track.artist;
-  spotifyLink.href=track.spotify;
+  spotifyLink.href=spotifySearchUrl(track);
   appleLink.href=track.apple;
   youtubeLink.href=track.youtube;
   panel.classList.add('open');
@@ -1529,7 +1535,7 @@ flipButton.addEventListener('click',()=>{
     return {
       spotify: queryText
         ? `https://open.spotify.com/search/${query}`
-        : 'https://open.spotify.com/search/',
+        : 'https://open.spotify.com/search',
       apple: queryText
         ? `https://music.apple.com/us/search?term=${query}`
         : 'https://music.apple.com/',
