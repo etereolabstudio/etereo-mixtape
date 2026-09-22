@@ -1507,25 +1507,52 @@ flipButton.addEventListener('click',()=>{
     return value == null ? '' : String(value);
   }
 
+  function safeExternalUrl(value, allowedHosts) {
+    try {
+      const url = new URL(String(value || ''));
+      if (url.protocol !== 'https:') return '';
+      if (!allowedHosts.includes(url.hostname.toLowerCase())) return '';
+      return url.href;
+    } catch {
+      return '';
+    }
+  }
+
   function makeSearchLinks(track) {
     const title = String(track?.title || '').trim();
     const artist = String(track?.artist || '').trim();
     const queryText = `${title} ${artist}`.trim();
     const query = encodeURIComponent(queryText);
-    const youtubeQuery = encodeURIComponent(queryText).replace(/%20/g, '+');
 
-    // Deliberadamente NO usamos spotify_url/apple_url/youtube_url.
-    // La búsqueda se genera en tiempo real a partir de la canción configurada.
+    const spotifyExact = safeExternalUrl(track?.spotify_url, [
+      'open.spotify.com'
+    ]);
+    const appleExact = safeExternalUrl(track?.apple_url, [
+      'music.apple.com'
+    ]);
+    const youtubeExact = safeExternalUrl(track?.youtube_url, [
+      'www.youtube.com',
+      'youtube.com',
+      'music.youtube.com',
+      'youtu.be'
+    ]);
+
     return {
-      spotify: queryText
-        ? `https://open.spotify.com/search/${query}`
-        : 'https://open.spotify.com/',
-      apple: queryText
-        ? `https://music.apple.com/us/search?term=${query}`
-        : 'https://music.apple.com/',
-      youtube: queryText
-        ? `https://www.youtube.com/results?search_query=${youtubeQuery}`
-        : 'https://www.youtube.com/'
+      spotify:
+        spotifyExact ||
+        (queryText
+          ? `https://open.spotify.com/search/${query}`
+          : 'https://open.spotify.com/'),
+      apple:
+        appleExact ||
+        (queryText
+          ? `https://music.apple.com/us/search?term=${query}`
+          : 'https://music.apple.com/'),
+      youtube:
+        youtubeExact ||
+        (queryText
+          ? `https://www.youtube.com/results?search_query=${query}`
+          : 'https://www.youtube.com/')
     };
   }
 
@@ -1604,32 +1631,46 @@ flipButton.addEventListener('click',()=>{
 
     if (!trackList) return;
 
-    trackList.innerHTML = '';
+    trackList.replaceChildren();
 
     tracks.forEach((track, index) => {
       const row = document.createElement('div');
       row.className = 'track-row';
 
-      const position =
-        Number(track.position) ||
-        index + 1;
+      const position = Number(track.position) || index + 1;
 
-      row.innerHTML = `
-        <div class="track-number">${String(position).padStart(2, '0')}</div>
-        <div>
-          <div class="track-name">${escapeText(track.title)}</div>
-          <div class="track-artist">${escapeText(track.artist)}</div>
-          ${
-            track.note
-              ? `<div class="track-note">${escapeText(track.note)}</div>`
-              : ''
-          }
-        </div>
-        <div class="track-open">
-          ${formatDuration(track.duration_seconds)}<br>
-          ESCUCHAR ↗
-        </div>
-      `;
+      const number = document.createElement('div');
+      number.className = 'track-number';
+      number.textContent = String(position).padStart(2, '0');
+
+      const info = document.createElement('div');
+      const title = document.createElement('div');
+      title.className = 'track-name';
+      title.textContent = track.title || '';
+
+      const artist = document.createElement('div');
+      artist.className = 'track-artist';
+      artist.textContent = track.artist || '';
+
+      info.appendChild(title);
+      info.appendChild(artist);
+
+      if (track.note) {
+        const note = document.createElement('div');
+        note.className = 'track-note';
+        note.textContent = track.note;
+        info.appendChild(note);
+      }
+
+      const open = document.createElement('div');
+      open.className = 'track-open';
+      open.style.whiteSpace = 'pre-line';
+      open.appendChild(document.createTextNode(`${formatDuration(track.duration_seconds)}\n`));
+      open.appendChild(document.createTextNode('ESCUCHAR ↗'));
+
+      row.appendChild(number);
+      row.appendChild(info);
+      row.appendChild(open);
 
       row.addEventListener('click', () => {
         updateTrackPanel(track);
@@ -1862,6 +1903,7 @@ flipButton.addEventListener('click',()=>{
     }
 
     clearInterval(wait);
+    clearTimeout(waitTimeout);
 
     // Replace the legacy audio element so only this controller owns playback.
     const audio = sourceAudio.cloneNode(true);
@@ -2079,6 +2121,10 @@ flipButton.addEventListener('click',()=>{
 
     buildRealWaveform();
   }, 100);
+
+  const waitTimeout = window.setTimeout(() => {
+    clearInterval(wait);
+  }, 15000);
 })();
 </script>
 
