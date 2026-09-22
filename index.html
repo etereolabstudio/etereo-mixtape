@@ -729,7 +729,7 @@ footer{
     </div>
 
     <div class="panel-note">
-      Cuando tengamos los enlaces reales de cada Mixtape, este panel se alimentará directamente desde el Manager.
+      Los enlaces mostrados son los que se guardaron desde Etéreo Manager.
     </div>
   </div>
 </div>
@@ -1507,21 +1507,11 @@ flipButton.addEventListener('click',()=>{
     return value == null ? '' : String(value);
   }
 
-  function makeSearchLinks(track) {
-    const query = encodeURIComponent(
-      `${track.title || ''} ${track.artist || ''}`.trim()
-    );
-
+  function makeTrackLinks(track) {
     return {
-      spotify:
-        track.spotify_url ||
-        `https://open.spotify.com/search/${query}`,
-      apple:
-        track.apple_url ||
-        `https://music.apple.com/us/search?term=${query}`,
-      youtube:
-        track.youtube_url ||
-        `https://www.youtube.com/results?search_query=${query}`
+      spotify: String(track.spotify_url || '').trim(),
+      apple: String(track.apple_url || '').trim(),
+      youtube: String(track.youtube_url || '').trim()
     };
   }
 
@@ -1553,14 +1543,21 @@ flipButton.addEventListener('click',()=>{
     const apple = qs('#appleLink');
     const youtube = qs('#youtubeLink');
 
-    const links = makeSearchLinks(track);
+    const links = makeTrackLinks(track);
 
     if (title) title.textContent = track.title || '';
     if (artist) artist.textContent = track.artist || '';
 
-    if (spotify) spotify.href = links.spotify;
-    if (apple) apple.href = links.apple;
-    if (youtube) youtube.href = links.youtube;
+    [
+      [spotify, links.spotify],
+      [apple, links.apple],
+      [youtube, links.youtube]
+    ].forEach(([element, href]) => {
+      if (!element) return;
+      element.href = href || '#';
+      element.style.display = href ? '' : 'none';
+      element.setAttribute('aria-hidden', href ? 'false' : 'true');
+    });
 
     panel?.classList.add('open');
     panel?.setAttribute('aria-hidden', 'false');
