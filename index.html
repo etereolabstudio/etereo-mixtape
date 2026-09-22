@@ -461,6 +461,63 @@ footer{
   .edition-mark{font-size:6.5px}
   .ritual-word{font-size:11px}
 }
+
+/* =========================================================
+   REMOTE MIXTAPE LOADING STATE
+   Prevents the hardcoded demo from flashing before real data
+   arrives when a public ?token= URL is opened.
+   ========================================================= */
+#remoteLoadingOverlay{
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:var(--bg-color,#121016);
+  color:var(--text-main,#EDE6D6);
+  text-align:center;
+  padding:2rem;
+}
+#remoteLoadingOverlay.show{
+  display:flex;
+}
+#remoteLoadingOverlay .remote-loading-inner{
+  width:min(420px,90vw);
+}
+#remoteLoadingOverlay .remote-loading-brand{
+  font-family:var(--font-display,'Arial',sans-serif);
+  font-size:clamp(2rem,6vw,3.2rem);
+  letter-spacing:.04em;
+  margin-bottom:1rem;
+}
+#remoteLoadingOverlay .remote-loading-label{
+  font-family:var(--font-mono,'monospace');
+  font-size:.72rem;
+  letter-spacing:.14em;
+  color:var(--text-secondary,#9B9488);
+  text-transform:uppercase;
+}
+#remoteLoadingOverlay .remote-loading-line{
+  width:100%;
+  height:1px;
+  margin:1.25rem auto 0;
+  background:rgba(237,230,214,.12);
+  overflow:hidden;
+}
+#remoteLoadingOverlay .remote-loading-line::after{
+  content:'';
+  display:block;
+  width:38%;
+  height:100%;
+  background:var(--accent-primary,#DD8E5C);
+  animation:remoteLoadingPulse 1.15s ease-in-out infinite;
+}
+@keyframes remoteLoadingPulse{
+  0%{transform:translateX(-140%);}
+  100%{transform:translateX(360%);}
+}
+
 </style>
 
 <script type="importmap">
@@ -472,6 +529,16 @@ footer{
 </head>
 
 <body>
+
+<div id="remoteLoadingOverlay" aria-live="polite" aria-busy="true">
+  <div class="remote-loading-inner">
+    <div class="remote-loading-brand">ETÉREO</div>
+    <div class="remote-loading-label">CARGANDO TU MIXTAPE</div>
+    <div class="remote-loading-line" aria-hidden="true"></div>
+  </div>
+</div>
+
+
 
 <header>
   <div class="wordmark">ETÉREO <small>Mixtape</small></div>
@@ -899,7 +966,7 @@ footer{
   // When a real public Mixtape is loaded, the dedicated real-audio
   // controller below owns the voice player. This prevents the legacy
   // demo controller from competing with it.
-  const hasRemoteMixtape = new URLSearchParams(window.location.search).has('id');
+  const hasRemoteMixtape = new URLSearchParams(window.location.search).has('token');
   if (hasRemoteMixtape) return;
 
   // Real sample voice audio.
@@ -1452,9 +1519,21 @@ flipButton.addEventListener('click',()=>{
 
   const params = new URLSearchParams(window.location.search);
   const publicToken = (params.get('token') || '').trim();
+  const remoteLoadingOverlay = document.getElementById('remoteLoadingOverlay');
+
+  const setRemoteLoading = (isLoading) => {
+    if (!remoteLoadingOverlay) return;
+    remoteLoadingOverlay.classList.toggle('show', isLoading);
+    remoteLoadingOverlay.setAttribute('aria-busy', isLoading ? 'true' : 'false');
+  };
 
   // With no ?token=..., preserve the current demo/landing behavior.
-  if (!publicToken) return;
+  if (!publicToken) {
+    setRemoteLoading(false);
+    return;
+  }
+
+  setRemoteLoading(true);
 
   const qs = selector => document.querySelector(selector);
   const qsa = selector => Array.from(document.querySelectorAll(selector));
@@ -1673,6 +1752,7 @@ flipButton.addEventListener('click',()=>{
   }
 
   function renderUnavailable(message) {
+    setRemoteLoading(false);
     document.title = 'ETÉREO — Mixtape no disponible';
 
     if (heroEyebrow) {
@@ -1730,6 +1810,7 @@ flipButton.addEventListener('click',()=>{
       }
 
       remoteMixtape = payload.mixtape;
+      setRemoteLoading(false);
 
       const recipient = remoteMixtape.recipient_name || 'ti';
       const sender = remoteMixtape.sender_name || '';
@@ -1884,7 +1965,7 @@ flipButton.addEventListener('click',()=>{
    ========================================================= */
 (() => {
   const params = new URLSearchParams(window.location.search);
-  if (!params.has('id')) return;
+  if (!params.has('token')) return;
 
   const wait = setInterval(() => {
     const sourceAudio = document.getElementById('voiceAudio');
