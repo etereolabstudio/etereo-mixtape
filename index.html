@@ -1132,8 +1132,8 @@ function createPhysicalLabel(texture, side){
     roughness: 0.88,
     metalness: 0,
     transparent: true,
-    alphaTest: 0.015,
-    depthWrite: false,
+    alphaTest: 0.08,
+    depthWrite: true,
     side: THREE.DoubleSide
   });
 
@@ -1144,7 +1144,7 @@ function createPhysicalLabel(texture, side){
 
   // The sticker is physically flat. It sits just above/below the
   // recessed label bed so it does not z-fight with the cassette shell.
-  mesh.position.set(52.0, 31.75, side === 'A' ? 10.605 : 1.995);
+  mesh.position.set(52.0, 31.75, side === 'A' ? 12.63 : -0.03);
 
   if(side === 'B'){
     // Side B is on the opposite physical face. Rotate the label plane
@@ -1153,7 +1153,9 @@ function createPhysicalLabel(texture, side){
 
     // The plane is viewed from the opposite side, so compensate the
     // horizontal UV orientation to keep the printed artwork readable.
-    texture.wrapS = THREE.RepeatWrapping;
+    // The 180° rotation puts Side B on the outward-facing rear plane.
+    // Keep the artwork orientation readable from the rear.
+    texture.wrapS = THREE.ClampToEdgeWrapping;
     texture.repeat.x = -1;
     texture.offset.x = 1;
   }
@@ -1167,7 +1169,7 @@ function loadPhysicalLabels(){
     './assets/Etereo_MIxtape_Etiqueta.png',
     texture => {
       labelMeshA = createPhysicalLabel(texture, 'A');
-      labelMeshA.visible = currentSide === 'A';
+      labelMeshA.visible = true;
     },
     undefined,
     err => console.error('No se pudo cargar la etiqueta A.', err)
@@ -1177,16 +1179,18 @@ function loadPhysicalLabels(){
     './assets/Etereo_MIxtape_EtiquetaB.png',
     texture => {
       labelMeshB = createPhysicalLabel(texture, 'B');
-      labelMeshB.visible = currentSide === 'B';
+      labelMeshB.visible = true;
     },
     undefined,
     err => console.error('No se pudo cargar la etiqueta B.', err)
   );
 }
 
-function updatePhysicalLabelVisibility(side){
-  if(labelMeshA) labelMeshA.visible = side === 'A';
-  if(labelMeshB) labelMeshB.visible = side === 'B';
+function updatePhysicalLabelVisibility(){
+  // Both physical stickers remain attached to their real faces.
+  // The cassette shell naturally occludes the opposite side during the flip.
+  if(labelMeshA) labelMeshA.visible = true;
+  if(labelMeshB) labelMeshB.visible = true;
 }
 
 function resize(){
