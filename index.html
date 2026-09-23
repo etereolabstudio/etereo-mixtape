@@ -1099,10 +1099,13 @@ let flipping=false;
 
 /* =========================
    PHYSICAL LABELS — ETÉREO
-   The real stickers are flat paper decals.
-   The GLB label beds are 94.2 × 45 mm, centered on
-   the cassette, with the upper recessed bed at Z=10.6 and
-   lower recessed bed at Z=2.0 in the source model.
+   The physical stickers are flat paper decals.
+   The cassette GLB has a dedicated recessed label bed on each face.
+   Source geometry (before the page scales the model):
+     label bed: X 8..96 mm, Y 16.5..57.5 mm
+     Side A bed: Z = 8.8 mm
+     Side B bed: Z = 3.8 mm
+   The sticker is fitted to that bed instead of floating over the shell.
    ========================= */
 
 const labelLoader = new THREE.TextureLoader();
@@ -1125,42 +1128,37 @@ function configureLabelTexture(texture){
 function createPhysicalLabel(texture, side){
   configureLabelTexture(texture);
 
-  const geometry = new THREE.PlaneGeometry(94.2, 45.0);
+  // Exact recessed label-bed dimensions measured from the supplied GLB.
+  const geometry = new THREE.PlaneGeometry(88.0, 41.0);
+
   const material = new THREE.MeshStandardMaterial({
     map: texture,
     color: 0xffffff,
-    roughness: 0.88,
+    roughness: 0.92,
     metalness: 0,
     transparent: true,
-    alphaTest: 0.015,
-    depthWrite: false,
+    alphaTest: 0.02,
+    depthWrite: true,
     polygonOffset: true,
     polygonOffsetFactor: -1,
     polygonOffsetUnits: -1,
-    side: THREE.DoubleSide
+    side: THREE.FrontSide
   });
 
   const mesh = new THREE.Mesh(geometry, material);
-  mesh.renderOrder = 1;
   mesh.castShadow = false;
   mesh.receiveShadow = false;
 
-  // The sticker is physically flat. It sits just above/below the
-  // recessed label bed so it does not z-fight with the cassette shell.
-  mesh.position.set(52.0, 31.75, side === 'A' ? 10.62 : 1.98);
+  // Exact center of the recessed bed. The tiny offset is toward the
+  // viewer, just enough to prevent z-fighting without making the paper
+  // look like it is floating above the cassette.
+  mesh.position.set(52.0, 37.0, side === 'A' ? 8.82 : 3.78);
 
   if(side === 'B'){
-    // Side B is on the opposite physical face. Rotate the label plane
-    // so its paper face points outward from the rear of the cassette.
+    // The rear sticker is a physical label on the opposite face.
+    // Rotate the plane to face the rear camera. Do NOT mirror the PNG: 
+    // the supplied B artwork is already the final printable orientation.
     mesh.rotation.y = Math.PI;
-
-    // The plane is viewed from the opposite side, so compensate the
-    // horizontal UV orientation to keep the printed artwork readable.
-    // The 180° rotation puts Side B on the outward-facing rear plane.
-    // Keep the artwork orientation readable from the rear.
-    texture.wrapS = THREE.ClampToEdgeWrapping;
-    texture.repeat.x = -1;
-    texture.offset.x = 1;
   }
 
   model.add(mesh);
