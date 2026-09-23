@@ -1138,10 +1138,10 @@ function createPhysicalLabel(texture, side){
     metalness: 0,
     transparent: true,
     alphaTest: 0.02,
-    depthWrite: true,
+    depthWrite: false,
     polygonOffset: true,
-    polygonOffsetFactor: -1,
-    polygonOffsetUnits: -1,
+    polygonOffsetFactor: -4,
+    polygonOffsetUnits: -4,
     side: THREE.FrontSide
   });
 
@@ -1152,7 +1152,7 @@ function createPhysicalLabel(texture, side){
   // Exact center of the recessed bed. The tiny offset is toward the
   // viewer, just enough to prevent z-fighting without making the paper
   // look like it is floating above the cassette.
-  mesh.position.set(52.0, 37.0, side === 'A' ? 8.82 : 3.78);
+  mesh.position.set(52.0, 37.0, side === 'A' ? 8.88 : 3.72);
 
   if(side === 'B'){
     // The rear sticker is a physical label on the opposite face.
