@@ -1097,6 +1097,98 @@ controls.update();
 let model=null;
 let flipping=false;
 
+/* =========================
+   PHYSICAL LABELS — ETÉREO
+   The real stickers are flat paper decals.
+   The GLB label beds are 94.2 × 45 mm, centered on
+   the cassette, with the upper bed at Z=10.6 and
+   the lower bed at Z=2.0 in the source model.
+   ========================= */
+
+const labelLoader = new THREE.TextureLoader();
+let labelA = null;
+let labelB = null;
+let labelMeshA = null;
+let labelMeshB = null;
+
+function configureLabelTexture(texture){
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = Math.min(
+    renderer.capabilities.getMaxAnisotropy(),
+    8
+  );
+  texture.wrapS = THREE.ClampToEdgeWrapping;
+  texture.wrapT = THREE.ClampToEdgeWrapping;
+  texture.needsUpdate = true;
+}
+
+function createPhysicalLabel(texture, side){
+  configureLabelTexture(texture);
+
+  const geometry = new THREE.PlaneGeometry(94.2, 45.0);
+  const material = new THREE.MeshStandardMaterial({
+    map: texture,
+    color: 0xffffff,
+    roughness: 0.88,
+    metalness: 0,
+    transparent: true,
+    alphaTest: 0.015,
+    depthWrite: false,
+    side: THREE.DoubleSide
+  });
+
+  const mesh = new THREE.Mesh(geometry, material);
+  mesh.renderOrder = 20;
+  mesh.castShadow = false;
+  mesh.receiveShadow = false;
+
+  // The sticker is physically flat. It sits just above/below the
+  // recessed label bed so it does not z-fight with the cassette shell.
+  mesh.position.set(52.0, 31.75, side === 'A' ? 10.605 : 1.995);
+
+  if(side === 'B'){
+    // Side B is on the opposite physical face. Rotate the label plane
+    // so its paper face points outward from the rear of the cassette.
+    mesh.rotation.y = Math.PI;
+
+    // The plane is viewed from the opposite side, so compensate the
+    // horizontal UV orientation to keep the printed artwork readable.
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.repeat.x = -1;
+    texture.offset.x = 1;
+  }
+
+  model.add(mesh);
+  return mesh;
+}
+
+function loadPhysicalLabels(){
+  labelA = labelLoader.load(
+    './assets/Etereo_MIxtape_Etiqueta.png',
+    texture => {
+      labelMeshA = createPhysicalLabel(texture, 'A');
+      labelMeshA.visible = currentSide === 'A';
+    },
+    undefined,
+    err => console.error('No se pudo cargar la etiqueta A.', err)
+  );
+
+  labelB = labelLoader.load(
+    './assets/Etereo_MIxtape_EtiquetaB.png',
+    texture => {
+      labelMeshB = createPhysicalLabel(texture, 'B');
+      labelMeshB.visible = currentSide === 'B';
+    },
+    undefined,
+    err => console.error('No se pudo cargar la etiqueta B.', err)
+  );
+}
+
+function updatePhysicalLabelVisibility(side){
+  if(labelMeshA) labelMeshA.visible = side === 'A';
+  if(labelMeshB) labelMeshB.visible = side === 'B';
+}
+
 function resize(){
   const w=host.clientWidth,h=host.clientHeight;
   camera.aspect=w/h;
@@ -1150,6 +1242,7 @@ new GLTFLoader().load(
     root.add(model);
     materialize(model);
     frameModel(model);
+    loadPhysicalLabels();
   },
   undefined,
   err=>console.error('No se pudo cargar cassette_assembled.glb',err)
@@ -1484,6 +1577,7 @@ function rotateCassetteToSide(side){
       requestAnimationFrame(step);
     }else{
       currentSide=side;
+      updatePhysicalLabelVisibility(side);
       renderSide(side);
       flipping=false;
       controls.update();
